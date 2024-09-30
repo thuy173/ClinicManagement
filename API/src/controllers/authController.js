@@ -1,0 +1,69 @@
+import { StatusCodes } from "http-status-codes";
+import * as bcrypt from "bcrypt";
+import { userService } from "~/services/userService";
+import { auth } from "~/middlewares/auth";
+
+const register = async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    if (!(username && password)) {
+      return res.status(StatusCodes.BAD_REQUEST).send({
+        errMessage: "Please fill all required areas!",
+      });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(password, salt);
+    req.body.password = hashedPassword;
+
+    const user = await userService.register(req.body);
+
+    res.status(StatusCodes.CREATED).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const login = async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    if (!(username && password)) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ errMessage: "Please fill all required areas!" });
+    }
+
+    const result = await userService.login(username);
+
+    if (!result) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ errMessage: "Your phone/password is wrong!" });
+    }
+
+    const hashedPassword = result.password;
+    if (!bcrypt.compareSync(password, hashedPassword)) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ errMessage: "Your phone/password is wrong!" });
+    }
+
+    const verifyToken = auth.generateToken(result._id.toString(), result.phone);
+    result.verifyToken = verifyToken;
+
+    await userService.updateVerifyToken(result._id, verifyToken);
+
+    delete result.password;
+
+    return res
+      .status(StatusCodes.OK)
+      .send({ message: "User login successful!", user: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const authController = {
+  register,
+  login,
+};
