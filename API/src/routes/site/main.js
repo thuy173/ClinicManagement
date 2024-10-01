@@ -1,9 +1,13 @@
 import express from "express";
-import { patientRoute } from "../admin/patientRoute";
+import { doctorRoute } from "./doctorRoute";
+import { serviceRoute } from "./serviceRoute";
 
 const siteRouter = express.Router();
 
-/** Patient APIs */
-siteRouter.use("/patient", patientRoute);
+/** Doctor APIs */
+siteRouter.use("/doctor", doctorRoute);
+
+/** Service APIs */
+siteRouter.use("/service", serviceRoute);
 
 export const siteRoute = siteRouter;

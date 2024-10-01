@@ -6,9 +6,9 @@ import { authRoute } from "./authRoute";
 
 const Router = express.Router();
 
-Router.use("/admin", auth.verifyToken, auth.checkRole(["Admin"]), adminRoute);
+Router.use("/admin", auth.verifyToken, auth.checkRole(["Admin", "Doctor"]), adminRoute);
 
-Router.use("/site", auth.verifyToken, auth.checkRole(["Patient", "Doctor"]), siteRoute);
+Router.use("/site", auth.verifyToken, auth.checkRole(["Patient", "Doctor", "Admin"]), siteRoute);
 
 Router.use("/auth", authRoute);
 
