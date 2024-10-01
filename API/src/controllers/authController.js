@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import * as bcrypt from "bcrypt";
 import { userService } from "~/services/userService";
 import { auth } from "~/middlewares/auth";
+import { roleService } from "~/services/roleService";
 
 const register = async (req, res, next) => {
   try {
@@ -48,7 +49,16 @@ const login = async (req, res, next) => {
         .send({ errMessage: "Your phone/password is wrong!" });
     }
 
-    const verifyToken = auth.generateToken(result._id.toString(), result.phone);
+    const role = await roleService.getById(result.role_id);
+
+    if (!role) {
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send({ errMessage: "User role not found!" });
+    }
+
+    const verifyToken = auth.generateToken(result._id.toString(), role.name);
+
     result.verifyToken = verifyToken;
 
     await userService.updateVerifyToken(result._id, verifyToken);

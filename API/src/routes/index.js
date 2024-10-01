@@ -1,20 +1,17 @@
 import express from "express";
-// import { auth } from "~/middlewares/auth";
+import { auth } from "~/middlewares/auth";
+import { adminRoute } from "./admin/main";
+import { siteRoute } from "./site/main";
 import { authRoute } from "./authRoute";
-import { patientRoute } from "./patientRoute";
-import { roleRoute } from "./roleRoute";
 
 const Router = express.Router();
 
-// Router.use("/patient", auth.verifyToken);
+Router.use("/admin", auth.verifyToken, auth.checkRole(["Admin"]), adminRoute);
 
-/** User APIs */
+Router.use("/site", auth.verifyToken, auth.checkRole(["Patient", "Doctor"]), siteRoute);
+
 Router.use("/auth", authRoute);
 
-/** Patient APIs */
-Router.use("/patient", patientRoute);
 
-/** Role APIs */
-Router.use("/role", roleRoute);
 
 export const APIs = Router;

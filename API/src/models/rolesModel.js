@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { ObjectId } from "mongodb";
 import { GET_DB } from "~/config/mongodb";
 
 // Define the collection name
@@ -56,7 +57,20 @@ const createRole = async (data) => {
   }
 };
 
+const findOneById = async (id) => {
+  try {
+    const result = await GET_DB()
+      .collection(ROLE_COLLECTION_NAME)
+      .findOne({ _id: new ObjectId(id) });
+    delete result.password;
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const roleModel = {
   getRole,
   createRole,
+  findOneById,
 };

@@ -1,28 +1,29 @@
-import { GET_DB } from "../config/mongodb";
-import { roleModel } from "../models/rolesModel";
+import { GET_DB } from "~/config/mongodb";
 
-const seedRoles = async () => {
+// Hàm để kiểm tra và tạo các role mặc định
+export const seedRoles = async () => {
   try {
-    // Kết nối tới DB
-    await GET_DB();
+    const db = GET_DB();
 
     const roles = [
       { name: "Admin" },
-      { name: "patient" },
+      { name: "Patient" },
       { name: "Doctor" },
     ];
 
-    for (let role of roles) {
-      try {
-        const insertedId = await roleModel.createRole(role.name);
-        console.log(`Role '${role.name}' created with ID: ${insertedId}`);
-      } catch (error) {
-        console.error(`Error creating role '${role.name}':`, error.message);
+    for (const role of roles) {
+      // Kiểm tra xem role đã tồn tại chưa
+      const existingRole = await db.collection("roles").findOne({ name: role.name });
+      
+      if (!existingRole) {
+        // Thêm role vào collection roles nếu chưa tồn tại
+        await db.collection("roles").insertOne({ ...role, createdAt: new Date(), updatedAt: new Date() });
+        console.log(`Role "${role.name}" created successfully`);
+      } else {
+        console.log(`Role "${role.name}" already exists`);
       }
     }
   } catch (error) {
-    console.error("Error seeding roles:", error.message);
+    console.error("Error seeding roles:", error);
   }
 };
-
-seedRoles();

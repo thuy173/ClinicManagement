@@ -7,8 +7,11 @@ import { env } from "./config/environment";
 import { CLOSE_DB, CONNECT_DB } from "./config/mongodb";
 import exitHook from "async-exit-hook";
 import { APIs } from "./routes";
+import dotenv from "dotenv";
+import { seedAdminUser } from "./scripts/seedAccountAdmin";
+import { seedRoles } from "./scripts/seedRoles";
 
-const dotenv = require("dotenv").config();
+dotenv.config();
 
 const START_SERVER = () => {
   const app = express();
@@ -47,8 +50,14 @@ const START_SERVER = () => {
 
 console.log("1. Connecting to MongoDb Cloud Atlas...");
 CONNECT_DB()
-  .then(() => console.log("2. Connect to MongoDb Cloud Atlas!"))
-  .then(() => START_SERVER())
+  .then(() => {
+    console.log("2. Connected to MongoDb Cloud Atlas!");
+    seedRoles().then(() => {
+      seedAdminUser().then(() => {
+        START_SERVER();
+      });
+    });
+  })
   .catch((error) => {
     console.error(error);
     process.exit(0);

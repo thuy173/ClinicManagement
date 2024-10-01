@@ -3,8 +3,8 @@ import { env } from "~/config/environment";
 import { StatusCodes } from "http-status-codes";
 import { userModel } from "~/models/userModel";
 
-const generateToken = (id, phone) => {
-  const token = jwt.sign({ id, phone }, env.JWT_SECRET, {
+const generateToken = (id, role) => {
+  const token = jwt.sign({ id, role }, env.JWT_SECRET, {
     expiresIn: env.TOKEN_EXPIRE_TIME,
   });
   return token.toString();
@@ -35,7 +35,7 @@ const verifyToken = async (req, res, next) => {
         errMessage: "User not found!",
       });
     }
-    req.user = user;
+    req.user = { ...user, role: verifyToken.role };
     next();
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -45,7 +45,22 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
+const checkRole = (allowedRoles) => {
+  return (req, res, next) => {
+    const { role } = req.user;
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(StatusCodes.FORBIDDEN).send({
+        errMessage: "You do not have permission to access this resource!",
+      });
+    }
+
+    next();
+  };
+};
+
 export const auth = {
   verifyToken,
   generateToken,
+  checkRole,
 };
