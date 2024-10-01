@@ -3,19 +3,20 @@ import { ObjectId } from "mongodb";
 import { GET_DB } from "~/config/mongodb";
 
 // Define the collection name
-const PATIENT_DETAIL_COLLECTION_NAME = "patient_details";
+const DOCTOR_DETAIL_COLLECTION_NAME = "doctor_details";
 
-// Define the schema for patient details
-const PATIENT_DETAIL_COLLECTION_SCHEMA = Joi.object({
+// Define the schema for doctor details
+const DOCTOR_DETAIL_COLLECTION_SCHEMA = Joi.object({
   user_id: Joi.any(),
-  medical_history: Joi.string(),
+  specialization: Joi.string(),
+  experience_year: Joi.string(),
 });
 
 // Chỉ định ra những Fields mà chúng ta không muốn cho phép cập nhật trong hàm update()
 const INVALID_UPDATE_FIELDS = ["_id", "user_id"];
 
 const validateBeforeCreate = async (data) => {
-  return await PATIENT_DETAIL_COLLECTION_SCHEMA.validateAsync(data, {
+  return await DOCTOR_DETAIL_COLLECTION_SCHEMA.validateAsync(data, {
     abortEarly: false,
   });
 };
@@ -27,7 +28,7 @@ const createDetails = async (data) => {
 
     // Insert into the patient_details collection
     const result = await GET_DB()
-      .collection(PATIENT_DETAIL_COLLECTION_NAME)
+      .collection(DOCTOR_DETAIL_COLLECTION_NAME)
       .insertOne(validPatientData);
 
     return result.insertedId;
@@ -39,7 +40,7 @@ const createDetails = async (data) => {
 const getAll = async () => {
   try {
     const patients = await GET_DB()
-      .collection(PATIENT_DETAIL_COLLECTION_NAME)
+      .collection(DOCTOR_DETAIL_COLLECTION_NAME)
       .find({})
       .toArray();
     patients.forEach((patients) => delete patients.password);
@@ -53,7 +54,7 @@ const getAll = async () => {
 const findOneById = async (id) => {
   try {
     const result = await GET_DB()
-      .collection(PATIENT_DETAIL_COLLECTION_NAME)
+      .collection(DOCTOR_DETAIL_COLLECTION_NAME)
       .findOne({ _id: new ObjectId(id) });
     delete result.password;
     return result;
@@ -79,7 +80,7 @@ const updateById = async (id, data) => {
     const validPatientData = await validateBeforeCreate(data);
 
     const result = await GET_DB()
-      .collection(PATIENT_DETAIL_COLLECTION_NAME)
+      .collection(DOCTOR_DETAIL_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(id) },
         { $set: validPatientData },
@@ -95,7 +96,7 @@ const updateById = async (id, data) => {
 const deleteById = async (id) => {
   try {
     const result = await GET_DB()
-      .collection(PATIENT_DETAIL_COLLECTION_NAME)
+      .collection(DOCTOR_DETAIL_COLLECTION_NAME)
       .deleteOne({ _id: new ObjectId(id) });
 
     return result;
@@ -104,7 +105,7 @@ const deleteById = async (id) => {
   }
 };
 
-export const patientDetailModel = {
+export const DoctorDetailModel = {
   createDetails,
   getAll,
   findOneById,

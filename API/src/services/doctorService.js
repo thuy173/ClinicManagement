@@ -2,16 +2,16 @@ import { StatusCodes } from "http-status-codes";
 import { userModel } from "~/models/userModel";
 import ApiError from "~/utils/error";
 import { userDetailModel } from "~/models/userDetailModel";
-import { patientDetailModel } from "~/models/patientDetailModel";
 import { userService } from "./userService";
+import { DoctorDetailModel } from "~/models/doctorDetailModel";
 
 const create = async (reqBody) => {
   try {
-    const userId = await userService.createUserWithRole(reqBody, "Patient");
+    const userId = await userService.createUserWithRole(reqBody, "Doctor");
 
     // Create patient details
     const patientDetails = { user_id: userId };
-    await patientDetailModel.createDetails(patientDetails);
+    await DoctorDetailModel.createDetails(patientDetails);
 
     return { userId };
   } catch (error) {
@@ -21,7 +21,7 @@ const create = async (reqBody) => {
 
 const getAll = async () => {
   try {
-    const patients = await patientDetailModel.getAll();
+    const patients = await DoctorDetailModel.getAll();
 
     // Duyệt qua tất cả bệnh nhân và bổ sung thông tin từ user_details và user
     const patientDetailsWithUser = await Promise.all(
@@ -53,7 +53,7 @@ const getAll = async () => {
 
 const getById = async (id) => {
   try {
-    const patient = await patientDetailModel.findOneById(id);
+    const patient = await DoctorDetailModel.findOneById(id);
 
     if (!patient) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Patient not found!");
@@ -83,22 +83,22 @@ const updateById = async (id, data) => {
     ...data,
     // updateAt: Date.now(),
   };
-  const patient = await patientDetailModel.updateById(id, updatePatient);
+  const patient = await DoctorDetailModel.updateById(id, updatePatient);
 
   return patient;
 };
 
 const deleteById = async (id) => {
-  const patient = await patientDetailModel.findOneById(id);
+  const patient = await DoctorDetailModel.findOneById(id);
   if (!patient) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Patient not found!");
   }
-  await patientDetailModel.deleteById(id);
+  await DoctorDetailModel.deleteById(id);
 
   return { message: "Delete patient successfully!" };
 };
 
-export const patientService = {
+export const doctorService = {
   create,
   getAll,
   getById,
