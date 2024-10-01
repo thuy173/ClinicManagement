@@ -4,27 +4,6 @@ import { userService } from "~/services/userService";
 import { auth } from "~/middlewares/auth";
 import { roleService } from "~/services/roleService";
 
-const register = async (req, res, next) => {
-  try {
-    const { username, password } = req.body;
-    if (!(username && password)) {
-      return res.status(StatusCodes.BAD_REQUEST).send({
-        errMessage: "Please fill all required areas!",
-      });
-    }
-
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(password, salt);
-    req.body.password = hashedPassword;
-
-    const user = await userService.register(req.body);
-
-    res.status(StatusCodes.CREATED).json(user);
-  } catch (error) {
-    next(error);
-  }
-};
-
 const login = async (req, res, next) => {
   try {
     const { username, password } = req.body;
@@ -74,6 +53,5 @@ const login = async (req, res, next) => {
 };
 
 export const authController = {
-  register,
   login,
 };

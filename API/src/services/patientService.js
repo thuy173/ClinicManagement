@@ -3,48 +3,13 @@ import { userModel } from "~/models/userModel";
 import ApiError from "~/utils/error";
 import { userDetailModel } from "~/models/userDetailModel";
 import { patientDetailModel } from "~/models/patientDetailModel";
-import { DEFAULT_PASSWORD, STATUS } from "~/utils/constants";
-import { roleModel } from "~/models/rolesModel";
-import * as bcrypt from "bcrypt";
+import { userService } from "./userService";
 
 const create = async (reqBody) => {
-  // Data for patient details
-  const patientData = {
-    name: reqBody.name,
-    phone: reqBody.phone,
-    email: reqBody.email,
-    dob: reqBody.dob,
-    gender: reqBody.gender,
-    address: reqBody.address,
-    status: STATUS.ACTIVE,
-  };
-
   try {
-    // Step 1: Fetch the "patient" role
-    const role = await roleModel.getRole("Patient");
+    const userId = await userService.createUserWithRole(reqBody, "Patient");
 
-    if (!role) {
-      throw new Error("Role 'patient' not found");
-    }
-
-    // Step 2: Create a user with phone as the username
-    const userData = {
-      username: reqBody.phone,
-      password: DEFAULT_PASSWORD,
-      role_id: role._id,
-      status: STATUS.ACTIVE,
-    };
-
-    const salt = bcrypt.genSaltSync(10);
-    userData.password = bcrypt.hashSync(userData.password, salt);
-
-    const userId = await userModel.createUser(userData);
-
-    // Step 3: Create user details
-    const userDetails = { ...patientData, user_id: userId };
-    await userDetailModel.createUserDetails(userDetails);
-
-    // Step 4: Create patient details
+    // Create patient details
     const patientDetails = { user_id: userId };
     await patientDetailModel.createPatientDetails(patientDetails);
 

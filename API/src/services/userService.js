@@ -1,20 +1,50 @@
+import { roleModel } from "~/models/rolesModel";
+import { userDetailModel } from "~/models/userDetailModel";
 import { userModel } from "~/models/userModel";
+import { DEFAULT_PASSWORD, STATUS } from "~/utils/constants";
+import * as bcrypt from "bcrypt";
 
-const register = async (reqBody) => {
-  // eslint-disable-next-line no-useless-catch
+const createUserWithRole = async (reqBody, roleName) => {
+  const userDetailData = {
+    name: reqBody.name,
+    phone: reqBody.phone,
+    email: reqBody.email,
+    dob: reqBody.dob,
+    gender: reqBody.gender,
+    address: reqBody.address,
+    status: STATUS.ACTIVE,
+  };
+
   try {
-    const newUser = {
-      ...reqBody,
-      status: true,
+    const role = await roleModel.getRole(roleName);
+
+    if (!role) {
+      throw new Error(`Role '${roleName}' not found`);
+    }
+
+    const userData = {
+      username: reqBody.phone,
+      password: DEFAULT_PASSWORD,
+      role_id: role._id,
+      status: STATUS.ACTIVE,
     };
 
-    const createdUser = await userModel.registerUser(newUser);
+    const salt = bcrypt.genSaltSync(10);
+    userData.password = bcrypt.hashSync(userData.password, salt);
 
-    const getNewUser = await userModel.findOneById(createdUser.insertedId);
+    const userId = await userModel.createUser(userData);
 
-    return getNewUser;
+    const userDetails = {
+      ...userDetailData,
+      user_id: userId,
+      status: STATUS.ACTIVE,
+    };
+
+    await userDetailModel.createUserDetails(userDetails);
+
+    return userId;
   } catch (error) {
-    throw error;
+    throw new Error(error.message);
   }
 };
 
@@ -48,8 +78,8 @@ const getUser = async (id) => {
 };
 
 export const userService = {
-  register,
   login,
   getUser,
   updateVerifyToken,
+  createUserWithRole,
 };

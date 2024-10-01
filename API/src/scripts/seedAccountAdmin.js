@@ -21,7 +21,7 @@ export const seedAdminUser = async () => {
     // Kiểm tra xem tài khoản admin đã tồn tại chưa
     const existingAdmin = await db
       .collection("users")
-      .findOne({ role: "Admin" });
+      .findOne({ role_id: adminRoleId });
 
     if (!existingAdmin) {
       // Tạo tài khoản admin mặc định
