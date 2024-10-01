@@ -53,7 +53,7 @@ const findOneById = async (id) => {
   try {
     const result = await GET_DB()
       .collection(PATIENT_DETAIL_COLLECTION_NAME)
-      .findOne({ _id: new ObjectId(id) });
+      .findOne({ user_id: new ObjectId(id) });
     return result;
   } catch (error) {
     throw new Error(error);
@@ -79,7 +79,7 @@ const updateById = async (id, data) => {
     const result = await GET_DB()
       .collection(PATIENT_DETAIL_COLLECTION_NAME)
       .findOneAndUpdate(
-        { _id: new ObjectId(id) },
+        { user_id: new ObjectId(id) },
         { $set: validData },
         { returnDocument: "after" }
       );
@@ -94,7 +94,7 @@ const deleteById = async (id) => {
   try {
     const result = await GET_DB()
       .collection(PATIENT_DETAIL_COLLECTION_NAME)
-      .deleteOne({ _id: new ObjectId(id) });
+      .deleteOne({ user_id: new ObjectId(id) });
 
     return result;
   } catch (error) {

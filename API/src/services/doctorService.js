@@ -32,6 +32,7 @@ const getAll = async () => {
         const user = await userModel.findOneById(doctor.user_id);
 
         return {
+          user_id: doctor.user_id,
           name: userDetail.name,
           phone: userDetail.phone,
           email: userDetail.email,
@@ -63,6 +64,7 @@ const getById = async (id) => {
     const user = await userModel.findOneById(doctor.user_id);
 
     return {
+      user_id: doctor.user_id,
       name: userDetail.name,
       phone: userDetail.phone,
       email: userDetail.email,
