@@ -21,15 +21,15 @@ const validateBeforeCreate = async (data) => {
   });
 };
 
-// Function to create patient details
+// Function to create details
 const createDetails = async (data) => {
   try {
-    const validPatientData = await validateBeforeCreate(data);
+    const validData = await validateBeforeCreate(data);
 
-    // Insert into the patient_details collection
+    // Insert into the details collection
     const result = await GET_DB()
       .collection(DOCTOR_DETAIL_COLLECTION_NAME)
-      .insertOne(validPatientData);
+      .insertOne(validData);
 
     return result.insertedId;
   } catch (error) {
@@ -39,13 +39,12 @@ const createDetails = async (data) => {
 
 const getAll = async () => {
   try {
-    const patients = await GET_DB()
+    const results = await GET_DB()
       .collection(DOCTOR_DETAIL_COLLECTION_NAME)
       .find({})
       .toArray();
-    patients.forEach((patients) => delete patients.password);
 
-    return patients;
+    return results;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -56,7 +55,6 @@ const findOneById = async (id) => {
     const result = await GET_DB()
       .collection(DOCTOR_DETAIL_COLLECTION_NAME)
       .findOne({ _id: new ObjectId(id) });
-    delete result.password;
     return result;
   } catch (error) {
     throw new Error(error);
@@ -77,13 +75,13 @@ const updateById = async (id, data) => {
       data.userId = data.userId.map((_id) => new ObjectId(_id));
     }
 
-    const validPatientData = await validateBeforeCreate(data);
+    const validData = await validateBeforeCreate(data);
 
     const result = await GET_DB()
       .collection(DOCTOR_DETAIL_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(id) },
-        { $set: validPatientData },
+        { $set: validData },
         { returnDocument: "after" }
       );
 

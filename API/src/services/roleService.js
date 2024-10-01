@@ -14,11 +14,11 @@ const create = async (reqBody) => {
 };
 
 const getById = async (id) => {
-  const patient = await roleModel.findOneById(id);
-  if (!patient) {
-    throw new ApiError(StatusCodes.NOT_FOUND, "Patient not found!");
+  const role = await roleModel.findOneById(id);
+  if (!role) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Role not found!");
   }
-  return patient;
+  return role;
 };
 
 export const roleService = {

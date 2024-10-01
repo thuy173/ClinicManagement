@@ -9,9 +9,9 @@ const create = async (reqBody) => {
   try {
     const userId = await userService.createUserWithRole(reqBody, "Doctor");
 
-    // Create patient details
-    const patientDetails = { user_id: userId };
-    await DoctorDetailModel.createDetails(patientDetails);
+    // Create details
+    const doctorDetail = { user_id: userId };
+    await DoctorDetailModel.createDetails(doctorDetail);
 
     return { userId };
   } catch (error) {
@@ -21,15 +21,15 @@ const create = async (reqBody) => {
 
 const getAll = async () => {
   try {
-    const patients = await DoctorDetailModel.getAll();
+    const doctors = await DoctorDetailModel.getAll();
 
     // Duyệt qua tất cả bệnh nhân và bổ sung thông tin từ user_details và user
-    const patientDetailsWithUser = await Promise.all(
-      patients.map(async (patient) => {
+    const doctorDetailsWithUser = await Promise.all(
+      doctors.map(async (doctor) => {
         const userDetail = await userDetailModel.findOneByUserId(
-          patient.user_id
+          doctor.user_id
         );
-        const user = await userModel.findOneById(patient.user_id);
+        const user = await userModel.findOneById(doctor.user_id);
 
         return {
           name: userDetail.name,
@@ -39,13 +39,13 @@ const getAll = async () => {
           gender: userDetail.gender,
           address: userDetail.address,
           status: userDetail.status,
-          medical_history: patient.medical_history,
+          medical_history: doctor.medical_history,
           username: user.username,
         };
       })
     );
 
-    return patientDetailsWithUser;
+    return doctorDetailsWithUser;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -53,14 +53,14 @@ const getAll = async () => {
 
 const getById = async (id) => {
   try {
-    const patient = await DoctorDetailModel.findOneById(id);
+    const doctor = await DoctorDetailModel.findOneById(id);
 
-    if (!patient) {
+    if (!doctor) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Patient not found!");
     }
 
-    const userDetail = await userDetailModel.findOneByUserId(patient.user_id);
-    const user = await userModel.findOneById(patient.user_id);
+    const userDetail = await userDetailModel.findOneByUserId(doctor.user_id);
+    const user = await userModel.findOneById(doctor.user_id);
 
     return {
       name: userDetail.name,
@@ -70,7 +70,7 @@ const getById = async (id) => {
       gender: userDetail.gender,
       address: userDetail.address,
       status: userDetail.status,
-      medical_history: patient.medical_history,
+      medical_history: doctor.medical_history,
       username: user.username,
     };
   } catch (error) {
@@ -79,23 +79,23 @@ const getById = async (id) => {
 };
 
 const updateById = async (id, data) => {
-  const updatePatient = {
+  const updateDoctor = {
     ...data,
     // updateAt: Date.now(),
   };
-  const patient = await DoctorDetailModel.updateById(id, updatePatient);
+  const doctor = await DoctorDetailModel.updateById(id, updateDoctor);
 
-  return patient;
+  return doctor;
 };
 
 const deleteById = async (id) => {
-  const patient = await DoctorDetailModel.findOneById(id);
-  if (!patient) {
-    throw new ApiError(StatusCodes.NOT_FOUND, "Patient not found!");
+  const doctor = await DoctorDetailModel.findOneById(id);
+  if (!doctor) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Doctor not found!");
   }
   await DoctorDetailModel.deleteById(id);
 
-  return { message: "Delete patient successfully!" };
+  return { message: "Delete doctor successfully!" };
 };
 
 export const doctorService = {

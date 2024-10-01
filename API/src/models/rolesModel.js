@@ -62,7 +62,6 @@ const findOneById = async (id) => {
     const result = await GET_DB()
       .collection(ROLE_COLLECTION_NAME)
       .findOne({ _id: new ObjectId(id) });
-    delete result.password;
     return result;
   } catch (error) {
     throw new Error(error);

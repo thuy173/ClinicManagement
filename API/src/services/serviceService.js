@@ -21,8 +21,8 @@ const create = async (reqBody) => {
 
 const getAll = async () => {
   try {
-    const patients = await serviceModel.getAll();
-    return patients;
+    const services = await serviceModel.getAll();
+    return services;
   } catch (error) {
     throw new Error(error.message);
   }

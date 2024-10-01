@@ -29,13 +29,13 @@ const validateBeforeCreate = async (data) => {
 const createUserDetails = async (data) => {
   try {
     const validData = await validateBeforeCreate(data);
-    const existingPatient = await GET_DB()
+    const existingUserDetail = await GET_DB()
       .collection(USER_DETAIL_COLLECTION_NAME)
       .findOne({
         $or: [{ phone: validData.phone }],
       });
 
-    if (existingPatient) {
+    if (existingUserDetail) {
       throw new Error("Phone already exists");
     }
     // Insert into the user_details collection
