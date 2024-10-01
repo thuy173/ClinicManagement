@@ -1,18 +1,21 @@
 import Joi from "joi";
-import { ObjectId } from "mongodb";
 import { GET_DB } from "~/config/mongodb";
-import { USER_ROLE } from "~/utils/constants";
+import { STATUS } from "~/utils/constants";
+import { ObjectId } from "mongodb";
 
-// Define Collection (Name & Schema)
+// Define the collection name
 const USER_COLLECTION_NAME = "users";
+
+// Define the schema for users
 const USER_COLLECTION_SCHEMA = Joi.object({
   username: Joi.string().required().min(10).max(20).trim().strict(),
-  password: Joi.string().required().min(6).strict(),
+  password: Joi.string().required().min(6).max(255).trim().strict(),
   avatar: Joi.string().default(""),
-  role: Joi.string().valid(...Object.values(USER_ROLE)),
-  status: Joi.boolean().default(true),
-  verifyToken: Joi.string().allow(null, ""),
-  patient_id: Joi.any(),
+  role_id: Joi.any(),
+  status: Joi.string()
+    .valid(...Object.values(STATUS))
+    .required(),
+  verifyToken: Joi.string().allow(null).default(null),
   createdAt: Joi.date().timestamp("javascript").default(Date.now),
   updatedAt: Joi.date().timestamp("javascript").default(null),
 });
@@ -23,37 +26,27 @@ const validateBeforeCreate = async (data) => {
   });
 };
 
-const registerUser = async (data) => {
+const createUser = async (data) => {
   try {
     const validData = await validateBeforeCreate(data);
 
+    // Step 1: Check if username (phone) already exists
     const existingUser = await GET_DB()
       .collection(USER_COLLECTION_NAME)
       .findOne({
-        $or: [{ username: validData.username }],
+        $or: [{ username: validData.phone }],
       });
 
     if (existingUser) {
-      throw new Error("Phone already exists");
+      throw new Error("Phone number already exists as a username");
     }
 
-    const createdUser = await GET_DB()
+    // Step 2: Insert into the users collection
+    const result = await GET_DB()
       .collection(USER_COLLECTION_NAME)
       .insertOne(validData);
 
-    return createdUser;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-const deleteById = async (id) => {
-  try {
-    const result = await GET_DB()
-      .collection(USER_COLLECTION_NAME)
-      .deleteOne({ _id: new ObjectId(id) });
-
-    return result;
+    return result.insertedId;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -97,61 +90,9 @@ const findOneByUserName = async (username) => {
   }
 };
 
-const updateAvatar = async (userId, userData) => {
-  try {
-    const updateFields = {
-      username: userData.username,
-      displayName: userData.username,
-      updatedAt: new Date(),
-    };
-
-    if (userData.avatarUrl) {
-      updateFields.avatar = userData.avatarUrl;
-    }
-    const result = await GET_DB()
-      .collection(USER_COLLECTION_NAME)
-      .updateOne(
-        { _id: new ObjectId(userId) },
-        { $set: updateFields },
-        { returnDocument: "after" }
-      );
-    return result;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-const isActive = async (userId) => {
-  try {
-    const result = await GET_DB()
-      .collection(USER_COLLECTION_NAME)
-      .updateOne({ _id: new ObjectId(userId) }, { $set: { status: true } });
-    return result;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-const unIsActive = async (userId) => {
-  try {
-    const result = await GET_DB()
-      .collection(USER_COLLECTION_NAME)
-      .updateOne({ _id: new ObjectId(userId) }, { $set: { status: false } });
-    return result;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
 export const userModel = {
-  USER_COLLECTION_NAME,
-  USER_COLLECTION_SCHEMA,
-  registerUser,
-  deleteById,
+  createUser,
   findOneById,
   findOneByUserName,
   updateVerifyToken,
-  updateAvatar,
-  isActive,
-  unIsActive,
 };

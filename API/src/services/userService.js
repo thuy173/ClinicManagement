@@ -20,7 +20,6 @@ const register = async (reqBody) => {
 
 const login = async (username) => {
   try {
-    
     const user = await userModel.findOneByUserName(username);
     if (!user) throw new Error("Your username/password is wrong!");
     return user;
@@ -48,20 +47,9 @@ const getUser = async (id) => {
   }
 };
 
-const getUserWithMail = async (email) => {
-  try {
-    const user = await userModel.findOneByEmail(email);
-    if (!user) throw new Error("There is no registered user with this e-mail.");
-    return user;
-  } catch (error) {
-    throw new Error("Something went wrong: " + error.message);
-  }
-};
-
 export const userService = {
   register,
   login,
   getUser,
-  getUserWithMail,
   updateVerifyToken,
 };

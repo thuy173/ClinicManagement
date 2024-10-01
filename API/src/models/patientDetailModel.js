@@ -1,58 +1,36 @@
 import Joi from "joi";
 import { ObjectId } from "mongodb";
 import { GET_DB } from "~/config/mongodb";
-import { GENDER, STATUS } from "~/utils/constants";
 
 // Define the collection name
-const PATIENT_COLLECTION_NAME = "patients";
+const PATIENT_DETAIL_COLLECTION_NAME = "patient_details";
 
-// Define the schema using Joi
-const PATIENT_COLLECTION_SCHEMA = Joi.object({
-  name: Joi.string().required().min(3).max(100).trim().strict(),
-  phone: Joi.string().required().min(10).max(20).trim().strict(),
-  dob: Joi.date().required(),
-  gender: Joi.string()
-    .valid(...Object.values(GENDER))
-    .required(),
-  address: Joi.string().required(),
-  status: Joi.string()
-    .valid(...Object.values(STATUS))
-    .required(),
-  createdAt: Joi.date().timestamp("javascript").default(Date.now),
-  updatedAt: Joi.date().timestamp("javascript").default(null),
+// Define the schema for patient details
+const PATIENT_DETAIL_COLLECTION_SCHEMA = Joi.object({
+  user_id: Joi.any(),
+  medical_history: Joi.string(),
 });
 
 // Chỉ định ra những Fields mà chúng ta không muốn cho phép cập nhật trong hàm update()
-const INVALID_UPDATE_FIELDS = ["_id", "createdAt"];
+const INVALID_UPDATE_FIELDS = ["_id", "user_id"];
 
-// Function to validate data before creating a new patient
 const validateBeforeCreate = async (data) => {
-  return await PATIENT_COLLECTION_SCHEMA.validateAsync(data, {
+  return await PATIENT_DETAIL_COLLECTION_SCHEMA.validateAsync(data, {
     abortEarly: false,
   });
 };
 
-// Function to register a new patient
-const create = async (data) => {
+// Function to create patient details
+const createPatientDetails = async (data) => {
   try {
-    // Validate the patient data
     const validPatientData = await validateBeforeCreate(data);
 
-    const existingPatient = await GET_DB()
-      .collection(PATIENT_COLLECTION_NAME)
-      .findOne({
-        $or: [{ phone: validPatientData.phone }],
-      });
-
-    if (existingPatient) {
-      throw new Error("Phone already exists");
-    }
-    // Insert the patient data into the database
-    const createdPatient = await GET_DB()
-      .collection(PATIENT_COLLECTION_NAME)
+    // Insert into the patient_details collection
+    const result = await GET_DB()
+      .collection(PATIENT_DETAIL_COLLECTION_NAME)
       .insertOne(validPatientData);
 
-    return createdPatient;
+    return result.insertedId;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -61,7 +39,7 @@ const create = async (data) => {
 const getAll = async () => {
   try {
     const patients = await GET_DB()
-      .collection(PATIENT_COLLECTION_NAME)
+      .collection(PATIENT_DETAIL_COLLECTION_NAME)
       .find({})
       .toArray();
     patients.forEach((patients) => delete patients.password);
@@ -75,7 +53,7 @@ const getAll = async () => {
 const findOneById = async (id) => {
   try {
     const result = await GET_DB()
-      .collection(PATIENT_COLLECTION_NAME)
+      .collection(PATIENT_DETAIL_COLLECTION_NAME)
       .findOne({ _id: new ObjectId(id) });
     delete result.password;
     return result;
@@ -98,15 +76,10 @@ const updateById = async (id, data) => {
       data.userId = data.userId.map((_id) => new ObjectId(_id));
     }
 
-    const validPatientData = await PATIENT_COLLECTION_SCHEMA.validateAsync(
-      data,
-      {
-        abortEarly: false,
-      }
-    );
+    const validPatientData = await validateBeforeCreate(data);
 
     const result = await GET_DB()
-      .collection(PATIENT_COLLECTION_NAME)
+      .collection(PATIENT_DETAIL_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(id) },
         { $set: validPatientData },
@@ -122,7 +95,7 @@ const updateById = async (id, data) => {
 const deleteById = async (id) => {
   try {
     const result = await GET_DB()
-      .collection(PATIENT_COLLECTION_NAME)
+      .collection(PATIENT_DETAIL_COLLECTION_NAME)
       .deleteOne({ _id: new ObjectId(id) });
 
     return result;
@@ -131,8 +104,8 @@ const deleteById = async (id) => {
   }
 };
 
-export const patientModel = {
-  create,
+export const patientDetailModel = {
+  createPatientDetails,
   getAll,
   findOneById,
   updateById,
