@@ -3,6 +3,7 @@ import { patientRoute } from "./patientRoute";
 import { roleRoute } from "./roleRoute";
 import { doctorRoute } from "./doctorRoute";
 import { serviceRoute } from "./serviceRoute";
+import { scheduleRoute } from "./scheduleRoute";
 
 const adminRouter = express.Router();
 
@@ -17,5 +18,8 @@ adminRouter.use("/doctor", doctorRoute);
 
 /** Service APIs */
 adminRouter.use("/service", serviceRoute);
+
+/** Schedule APIs */
+adminRouter.use("/schedule", scheduleRoute);
 
 export const adminRoute = adminRouter;

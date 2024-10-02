@@ -1,14 +1,19 @@
 import Joi from "joi";
 import { ObjectId } from "mongodb";
 import { GET_DB } from "~/config/mongodb";
+import { STATUS } from "~/utils/constants";
 
 // Define the collection name
 const SCHEDULE_COLLECTION_NAME = "schedules";
 
 const SCHEDULE_COLLECTION_SCHEMA = Joi.object({
-  name: Joi.string().required().min(3).max(20).trim().strict(),
-  create_at: Joi.date().default(Date.now),
-  update_at: Joi.date().default(Date.now),
+  user_id: Joi.any().required(),
+  work_date: Joi.date().required(),
+  start_time: Joi.date().required(),
+  end_time: Joi.date().required(),
+  status: Joi.string()
+    .valid(...Object.values(STATUS))
+    .required(),
 });
 
 const validateBeforeCreate = async (data) => {
@@ -17,7 +22,7 @@ const validateBeforeCreate = async (data) => {
   });
 };
 
-// Function to get a role by name
+// Function to get
 const getAllData = async () => {
   try {
     const results = await GET_DB()
@@ -35,13 +40,13 @@ const create = async (data) => {
   try {
     const validData = await validateBeforeCreate(data);
 
-    const existingSchedule = await GET_DB()
-      .collection(SCHEDULE_COLLECTION_NAME)
-      .findOne({ name: validData.name });
+    // const existingSchedule = await GET_DB()
+    //   .collection(SCHEDULE_COLLECTION_NAME)
+    //   .findOne({ user_id: validData.user_id });
 
-    if (existingSchedule) {
-      throw new Error(`Schedule '${data}' already exists`);
-    }
+    // if (existingSchedule) {
+    //   throw new Error(`Schedule '${data}' already exists`);
+    // }
 
     const result = await GET_DB()
       .collection(SCHEDULE_COLLECTION_NAME)
@@ -64,7 +69,7 @@ const findOneById = async (id) => {
   }
 };
 
-export const roleModel = {
+export const scheduleModel = {
   getAllData,
   create,
   findOneById,
