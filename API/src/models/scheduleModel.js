@@ -14,6 +14,8 @@ const SCHEDULE_COLLECTION_SCHEMA = Joi.object({
   status: Joi.string()
     .valid(...Object.values(STATUS))
     .required(),
+  createdAt: Joi.date().timestamp("javascript").default(Date.now),
+  updatedAt: Joi.date().timestamp("javascript").default(null),
 });
 
 const validateBeforeCreate = async (data) => {
