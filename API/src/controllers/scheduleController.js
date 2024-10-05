@@ -5,7 +5,7 @@ const createSchedule = async (req, res) => {
   try {
     const scheduleData = req.body;
 
-    const newSchedule = await scheduleService.create(scheduleData);
+    const newSchedule = await scheduleService.create(scheduleData, req);
 
     res.status(StatusCodes.CREATED).json(newSchedule);
   } catch (error) {

@@ -1,16 +1,44 @@
 import { StatusCodes } from "http-status-codes";
+import { roleModel } from "~/models/rolesModel";
 import { scheduleModel } from "~/models/scheduleModel";
+import { userModel } from "~/models/userModel";
 import { STATUS } from "~/utils/constants";
 import ApiError from "~/utils/error";
 
-const create = async (reqBody) => {
+const create = async (reqBody, req) => {
+  if (!req.user || !req.user._id) {
+    throw new Error("User is not authenticated.");
+  }
+
+  const userId = req.user._id;
+
+  if (!reqBody || typeof reqBody !== "object") {
+    throw new Error("Invalid request body.");
+  }
+
   const scheduleData = {
-    user_id: reqBody.user_id,
+    user_id: userId,
     work_date: reqBody.work_date,
     start_time: reqBody.start_time,
     end_time: reqBody.end_time,
     status: STATUS.ACTIVE,
   };
+
+  const user = await userModel.findOneById(userId);
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  const role = await roleModel.findOneById(user.role_id);
+  if (!role) {
+    throw new Error("Role user not found.");
+  }
+
+  if (role.name !== "Admin") {
+    throw new Error("Doctors have this right.");
+  }
+
   try {
     const createService = await scheduleModel.create(scheduleData);
 
@@ -22,7 +50,7 @@ const create = async (reqBody) => {
 
 const getAll = async () => {
   try {
-    const schedule = await scheduleModel.getAll();
+    const schedule = await scheduleModel.getAllData();
     return schedule;
   } catch (error) {
     throw new Error(error.message);

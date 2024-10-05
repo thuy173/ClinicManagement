@@ -9,8 +9,8 @@ const SCHEDULE_COLLECTION_NAME = "schedules";
 const SCHEDULE_COLLECTION_SCHEMA = Joi.object({
   user_id: Joi.any().required(),
   work_date: Joi.date().required(),
-  start_time: Joi.date().required(),
-  end_time: Joi.date().required(),
+  start_time: Joi.string().regex(/^\d{2}:\d{2}$/).required(),
+  end_time: Joi.string().regex(/^\d{2}:\d{2}$/).required(),
   status: Joi.string()
     .valid(...Object.values(STATUS))
     .required(),
