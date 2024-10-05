@@ -5,14 +5,16 @@ import ApiError from "~/utils/error";
 
 const create = async (reqBody) => {
   const bookingData = {
-    user_id: reqBody.user_id,
+    name: reqBody.name,
+    phone: reqBody.phone,
+    email: reqBody.email,
     service_id: reqBody.service_id,
     schedule_id: reqBody.schedule_id,
     booking_time: reqBody.booking_time,
     status: STATUS.ACTIVE,
   };
   try {
-    const createBooking = await bookingModel.createDetails(bookingData);
+    const createBooking = await bookingModel.create(bookingData);
 
     return createBooking;
   } catch (error) {

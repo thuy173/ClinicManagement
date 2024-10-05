@@ -4,7 +4,6 @@ import { roleRoute } from "./roleRoute";
 import { doctorRoute } from "./doctorRoute";
 import { serviceRoute } from "./serviceRoute";
 import { scheduleRoute } from "./scheduleRoute";
-import { bookingRoute } from "./bookingRoute";
 
 const adminRouter = express.Router();
 
@@ -22,8 +21,5 @@ adminRouter.use("/service", serviceRoute);
 
 /** Schedule APIs */
 adminRouter.use("/schedule", scheduleRoute);
-
-/** Booking APIs */
-adminRouter.use("/booking", bookingRoute);
 
 export const adminRoute = adminRouter;
