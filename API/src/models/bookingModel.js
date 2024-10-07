@@ -11,6 +11,7 @@ const BOOKING_COLLECTION_SCHEMA = Joi.object({
   name: Joi.string().required().min(3).max(100).trim().strict(),
   phone: Joi.string().required().min(10).max(20).trim().strict(),
   email: Joi.string().email().max(100).trim().strict(),
+  user_id: Joi.any().required(), 
   service_id: Joi.any().required(),
   schedule_id: Joi.any().required(),
   booking_time: Joi.date().required(),

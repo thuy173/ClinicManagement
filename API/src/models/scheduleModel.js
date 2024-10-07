@@ -7,10 +7,14 @@ import { STATUS } from "~/utils/constants";
 const SCHEDULE_COLLECTION_NAME = "schedules";
 
 const SCHEDULE_COLLECTION_SCHEMA = Joi.object({
-  user_id: Joi.any().required(),
+  user_ids: Joi.array().items(Joi.any()).required(),
   work_date: Joi.date().required(),
-  start_time: Joi.string().regex(/^\d{2}:\d{2}$/).required(),
-  end_time: Joi.string().regex(/^\d{2}:\d{2}$/).required(),
+  start_time: Joi.string()
+    .regex(/^\d{2}:\d{2}$/)
+    .required(),
+  end_time: Joi.string()
+    .regex(/^\d{2}:\d{2}$/)
+    .required(),
   status: Joi.string()
     .valid(...Object.values(STATUS))
     .required(),
@@ -71,8 +75,21 @@ const findOneById = async (id) => {
   }
 };
 
+const deleteById = async (id) => {
+  try {
+    const result = await GET_DB()
+      .collection(SCHEDULE_COLLECTION_NAME)
+      .deleteOne({ _id: new ObjectId(id) });
+
+    return result;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 export const scheduleModel = {
   getAllData,
   create,
   findOneById,
+  deleteById,
 };

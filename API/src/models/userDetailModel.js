@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { ObjectId } from "mongodb";
 import { GET_DB } from "~/config/mongodb";
 import { GENDER, STATUS } from "~/utils/constants";
 
@@ -53,7 +54,7 @@ const findOneByUserId = async (userId) => {
   try {
     const result = await GET_DB()
       .collection(USER_DETAIL_COLLECTION_NAME)
-      .findOne({ user_id: userId });
+      .findOne({ user_id: new ObjectId(userId) });
     return result;
   } catch (error) {
     throw new Error(error.message);

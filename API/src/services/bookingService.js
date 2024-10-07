@@ -1,9 +1,13 @@
 import { StatusCodes } from "http-status-codes";
 import { bookingModel } from "~/models/bookingModel";
+import { roleModel } from "~/models/rolesModel";
+import { userModel } from "~/models/userModel";
 import { STATUS } from "~/utils/constants";
 import ApiError from "~/utils/error";
 
 const create = async (reqBody) => {
+  const userId = reqBody.user_id;
+  
   const bookingData = {
     name: reqBody.name,
     phone: reqBody.phone,
@@ -13,6 +17,21 @@ const create = async (reqBody) => {
     booking_time: reqBody.booking_time,
     status: STATUS.ACTIVE,
   };
+
+  const user = await userModel.findOneById(userId);
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  const role = await roleModel.findOneById(user.role_id);
+  if (!role) {
+    throw new Error("Role user not found.");
+  }
+
+  if (role.name !== "Doctor") {
+    throw new Error("Doctors have this right.");
+  }
   try {
     const createBooking = await bookingModel.create(bookingData);
 
