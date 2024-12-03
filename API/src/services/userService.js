@@ -77,9 +77,23 @@ const getUser = async (id) => {
   }
 };
 
+const checkDuplicatePhone = async (phone) => {
+  try {
+    const user = await userModel.findOneByUserName(phone);
+
+    if (user) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    throw new Error(`Error while checking duplicate phone: ${error.message}`);
+  }
+};
+
 export const userService = {
   login,
   getUser,
   updateVerifyToken,
   createUserWithRole,
+  checkDuplicatePhone,
 };
