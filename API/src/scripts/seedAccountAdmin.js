@@ -26,9 +26,9 @@ export const seedAdminUser = async () => {
     if (!existingAdmin) {
       // Tạo tài khoản admin mặc định
       const adminData = {
-        username: process.env.DEFAULT_ADMIN_USERNAME || "admin",
+        username: process.env.DEFAULT_ADMIN_USERNAME,
         password: bcrypt.hashSync(
-          process.env.DEFAULT_ADMIN_PASSWORD || "Admin@123",
+          process.env.DEFAULT_ADMIN_PASSWORD,
           10
         ),
         role_id: adminRoleId,

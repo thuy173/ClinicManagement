@@ -10,7 +10,10 @@ const create = async (reqBody) => {
     const userId = await userService.createUserWithRole(reqBody, "Patient");
 
     // Create patient details
-    const patientDetails = { user_id: userId };
+    const patientDetails = {
+      user_id: userId,
+      medical_history: reqBody.medical_history,
+    };
     await patientDetailModel.createDetails(patientDetails);
 
     return { userId };
