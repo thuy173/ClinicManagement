@@ -23,11 +23,6 @@ const headerConfig: HeaderConfigItem[] = [
     icon: 'lni lni-heart',
     children: []
   },
-  {
-    title: 'Kiểm tra',
-    path: '/level-choice',
-    icon: 'lni lni-buildings-1'
-  },
 
   {
     title: 'Phương pháp',

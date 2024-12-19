@@ -1,5 +1,6 @@
 import React from 'react'
 import { Card } from '@nextui-org/react'
+import Link from 'next/link'
 import headerConfig from '@components/header/header-config'
 
 const MobileNav: React.FC = () => {
@@ -25,22 +26,24 @@ const MobileNav: React.FC = () => {
       >
         {headerConfig.map((item, index) => (
           <div key={index} style={{ textAlign: 'center' }}>
-            <i
-              className={item.icon}
-              style={{
-                fontSize: '24px',
-                // color: item.active ? '#7b61ff' : '#ccc'
-              }}
-            />
-            <div
-              style={{
-                fontSize: '12px',
-                // color: item.active ? '#7b61ff' : '#666',
-                marginTop: '5px'
-              }}
-            >
-              {item.title}
-            </div>
+            <Link key={item.title} href={item.path || '#'}>
+              <i
+                className={item.icon}
+                style={{
+                  fontSize: '24px'
+                  // color: item.active ? '#7b61ff' : '#ccc'
+                }}
+              />
+              <div
+                style={{
+                  fontSize: '12px',
+                  // color: item.active ? '#7b61ff' : '#666',
+                  marginTop: '5px'
+                }}
+              >
+                {item.title}
+              </div>
+            </Link>
           </div>
         ))}
       </div>

@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 import headerConfig from './header-config'
 
-import Logo from '../../public/assets/images/logo.svg'
+import Logo from '../../public/assets/icons/logo.svg'
 import { Avatar } from '@nextui-org/avatar'
 import { Input } from '@nextui-org/input'
 
@@ -41,8 +41,7 @@ const Header: React.FC = () => {
   }
 
   const handleLogout = () => {
-    // Implement logout logic
-    // Typically involves clearing auth tokens and redirecting
+   
   }
 
   return (
@@ -52,15 +51,16 @@ const Header: React.FC = () => {
           hideOnScroll ? '-translate-y-full' : 'translate-y-0'
         }`}
       >
-        <div className='container mx-auto flex items-center justify-between px-6 py-4'>
-          <div className='text-lg font-semibold'>
+        <div className='container mx-auto flex items-center justify-between px-6'>
+          <div className='flex gap-2 justify-center items-center'>
             <Image
               src={Logo}
-              alt='V'
-              width={40}
-              height={40}
+              alt='Medical'
+              width={48}
+              height={48}
               className='ml-1 md:ml-8 lg:ml-10'
             />
+            <h2 className='blue_gradient text-xl font-bold'>Medical</h2>
           </div>
 
           <div className='hidden space-x-12 font-semibold lg:flex'>
