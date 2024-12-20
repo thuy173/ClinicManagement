@@ -1,4 +1,4 @@
-import { Input } from '@node_modules/@nextui-org/input/dist'
+import InputApp from '@components/common/Input'
 import React from 'react'
 
 interface FooterProps {
@@ -64,27 +64,15 @@ const Footer: React.FC<FooterProps> = ({ className }) => {
           <p className='font-sans text-xs'>
             to get the latest news about heath from out exports
           </p>
-          <Input
+          <InputApp
+            type='email'
+            placeholder='myEmail@gmail.com'
             endContent={
               <div className='flex items-center gap-1 rounded-full bg-sky-600 p-2 text-white'>
                 <p className='text-xs font-light'>Submit</p>
                 <i className='lni lni-arrow-right'></i>
               </div>
             }
-            labelPlacement='outside'
-            placeholder='you@example.com'
-            type='email'
-            classNames={{
-              innerWrapper: 'bg-transparent',
-              input: ['bg-transparent', 'text-black/90 dark:text-white/90'],
-              inputWrapper: [
-                'border-2',
-                'my-2',
-                'bg-transparent',
-                'rounded-full',
-                'overflow-hidden'
-              ]
-            }}
           />
         </div>
       </div>
