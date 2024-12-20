@@ -44,33 +44,45 @@ const Header: React.FC = () => {
 
   const handleLogout = () => {}
 
-  const LinkInfo = [
+  const linkInfo = [
     { class: 'lni lni-app-store', title: 'Store' },
     { class: 'lni lni-facebook-messenger', title: 'Messenger' },
     { class: 'lni lni-facebook', title: 'Facebook' },
     { class: 'lni lni-facetime', title: 'Face time' }
   ]
 
+  const DividerVertical = () => (
+    <span className='mx-2 select-none text-zinc-300'>|</span>
+  )
+
   const headApp = () => {
     return (
       <div className='mt-2 hidden items-center justify-between gap-4 lg:flex'>
         <div className='hidden space-x-5 font-semibold lg:flex'>
-          {LinkInfo.map((item, index) => (
-            <IconApp
-              key={index}
-              name={item.class}
-              title={item.title}
-              style={{
-                color: '#3b82f6'
-              }}
-            />
+          {linkInfo.map((item, index) => (
+            <React.Fragment key={index}>
+              <IconApp
+                name={item.class}
+                title={item.title}
+                color='text-zinc-700'
+                style={{
+                  color: '#3f3f46'
+                }}
+              />
+              {index < linkInfo.length - 1 && <DividerVertical />}
+            </React.Fragment>
           ))}
         </div>
 
         <div className='flex items-center space-x-4'>
           <ButtonApp
-            title='Click'
-            icon='lni lni-facetime'
+            title='Tải ứng dụng'
+            icon='lni lni-cloud-download'
+            className='bg-red-500 text-white'
+          />
+          <ButtonApp
+            title='Tài khoản'
+            icon='lni lni-user-4'
             className='border border-blue-400 bg-transparent text-blue-500'
           />
         </div>
@@ -86,7 +98,7 @@ const Header: React.FC = () => {
             <Link
               key={item.title}
               href={item.path || '#'}
-              className='items-center text-gray-600 hover:text-gray-700'
+              className='items-center text-zinc-700 hover:text-zinc-800'
             >
               <span>{item.title}</span>
             </Link>
@@ -94,7 +106,7 @@ const Header: React.FC = () => {
         </div>
 
         <div className='flex items-center'>
-          <div className='lg:mx-2'>
+          <div className='lg:mx-5'>
             <InputApp
               type='text'
               placeholder='Search'
@@ -119,7 +131,7 @@ const Header: React.FC = () => {
                 {isDropdownOpen && (
                   <div className='absolute right-0 z-50 mt-2 w-48 rounded-md bg-white py-2 shadow-lg'>
                     <button
-                      className='block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100'
+                      className='block w-full px-4 py-2 text-left text-sm text-zinc-700 hover:bg-gray-100'
                       onClick={handleLogout}
                     >
                       Đăng xuất
@@ -132,7 +144,7 @@ const Header: React.FC = () => {
                 <div className=''>
                   <Link
                     href='/login'
-                    className='block font-medium text-gray-600 transition-transform duration-200 hover:scale-105 hover:text-gray-900'
+                    className='block font-medium text-zinc-700 transition-transform duration-200 hover:scale-105 hover:text-zinc-900'
                   >
                     Đăng nhập
                   </Link>

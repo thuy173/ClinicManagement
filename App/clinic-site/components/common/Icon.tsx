@@ -3,8 +3,9 @@ interface IconAppProps {
   name: string
   style?: React.CSSProperties
   title?: string
+  color?: string
 }
-const IconApp: React.FC<IconAppProps> = ({ name, style, title }) => {
+const IconApp: React.FC<IconAppProps> = ({ name, style, title, color }) => {
   return (
     <div className='flex justify-end items-end gap-1'>
       <i
@@ -14,7 +15,7 @@ const IconApp: React.FC<IconAppProps> = ({ name, style, title }) => {
           ...style
         }}
       ></i>
-      {title && <p className='font-sans text-sm text-blue-500'>{title}</p>}
+      {title && <p className={`${color} font-sans text-sm`}>{title}</p>}
     </div>
   )
 }

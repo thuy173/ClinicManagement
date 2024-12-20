@@ -8,8 +8,14 @@
   Note: The styles for this gradient grid background is heavily inspired by the creator of this amazing site (https://dub.sh) – all credits go to them! 
 */
 
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
 }
 
 .main {

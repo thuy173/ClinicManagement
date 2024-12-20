@@ -20,7 +20,16 @@ export default {
           md: '1.5rem',
           lg: '2rem'
         }
-      }
+      },
+      animation: {
+        'marquee': 'marquee 50s linear infinite',
+      },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
+      },
     }
   },
   plugins: [nextui()]
