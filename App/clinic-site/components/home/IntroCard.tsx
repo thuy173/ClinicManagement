@@ -1,63 +1,90 @@
+import IconApp from '@components/common/Icon'
 import { Card } from '@node_modules/@nextui-org/card/dist'
 import React from 'react'
+import FeatureImg from '../../public/assets/icons/tinh-nang.webp'
+import DoctorImg from '../../public/assets/icons/bac-si.webp'
+import CareImg from '../../public/assets/icons/cham-soc.webp'
+import GoodCheckImg from '../../public/assets/icons/kham-tot.webp'
+import AppointmentImg from '../../public/assets/icons/lich-kham.webp'
+import ScheduleTestImg from '../../public/assets/icons/lich-xet-nghiem.webp'
+import PayImg from '../../public/assets/icons/thanh-toan.webp'
+import InjectionImg from '../../public/assets/icons/tiem.webp'
 
 const fakeData = [
   {
-    title: 'Cardiology medical',
-    description: 'Focused on heart health and cardiovascular diseases.',
-    icon: 'lni lni-beat'
+    title: 'Gọi video với bác sĩ',
+    src: FeatureImg
   },
   {
-    title: 'Neurology',
-    description: 'Exploring brain and nervous system conditions.',
-    icon: 'lni lni-xrp'
+    title: 'Đặt khám theo bác sĩ',
+    src: DoctorImg
   },
   {
-    title: 'Pediatrics',
-    description: "Dedicated to children's health and development.",
-    icon: 'lni lni-search-2'
+    title: 'Y tế tại nhà',
+    src: CareImg
   },
   {
-    title: 'Orthopedics',
-    description: 'Caring for bones, joints, and muscles.',
-    icon: 'lni lni-coral'
+    title: 'Gói khám sức khỏe',
+    src: GoodCheckImg
+  },
+  {
+    title: 'Đặt khám tại cơ sở',
+    src: AppointmentImg
+  },
+  {
+    title: 'Đặt lịch xét nghiệm',
+    src: ScheduleTestImg
+  },
+  {
+    title: 'Đặt lịch tiêm chủng',
+    src: InjectionImg
+  },
+  {
+    title: 'Thanh toán viện phí',
+    src: PayImg
   }
 ]
 
 export default function IntroCard() {
   return (
     <section>
-      <div className='grid grid-cols-1 gap-5 px-5 md:grid-cols-2 lg:grid-cols-3 lg:px-10'>
-        {fakeData.map((item, index) => (
-          <Card key={index} className='sky_gradient'>
-            <div className='grid grid-cols-8 gap-1 px-5 pt-6'>
-              <div className='col-span-2 flex justify-center'>
-                <i className={item.icon} style={{ fontSize: '32px' }}></i>
-              </div>
-              <div className='col-span-6'>
-                <p className='line-clamp-2 text-lg font-semibold'>
+      <div className='hidden lg:block'>
+        <div className='grid grid-cols-7 gap-5 px-10'>
+          {fakeData.map((item, index) => (
+            <Card
+              key={index}
+              className={`border-none hover:border hover:border-blue-500 ${index === 7 ? 'lg:hidden' : ''}`}
+            >
+              <div className='flex flex-col items-center gap-2 py-3 lg:py-8'>
+                <div>
+                  <IconApp src={item.src} width={48} height={48} />
+                </div>
+                <div className='text-center font-sans text-sm text-zinc-700'>
                   {item.title}
-                </p>
+                </div>
               </div>
-            </div>
-            <div className='grid grid-cols-8 gap-1 px-5 pb-10'>
-              <div className='invisible col-span-2'></div>
-              <div className='col-span-6'>
-                <p className='line-clamp-3 font-sans text-xs'>
-                  {item.description}
-                </p>
+            </Card>
+          ))}
+        </div>
+      </div>
+      <div className='block lg:hidden px-5'>
+        <Card className={`border-none hover:border hover:border-blue-500`}>
+          <div className='grid grid-cols-3 sm:grid-cols-4'>
+            {fakeData.map((item, index) => (
+              <div
+                key={index}
+                className='flex flex-col items-center gap-2 py-3 lg:py-8'
+              >
+                <div>
+                  <IconApp src={item.src} width={48} height={48} />
+                </div>
+                <div className='text-center font-sans text-sm text-zinc-700'>
+                  {item.title}
+                </div>
               </div>
-            </div>
-            <div className='absolute bottom-0 right-0'>
-              <button className='rounded-tl-lg bg-sky-200 px-6 py-1 text-white'>
-                <i
-                  className='lni lni-arrow-right'
-                  style={{ fontSize: '18px' }}
-                ></i>
-              </button>
-            </div>
-          </Card>
-        ))}
+            ))}
+          </div>
+        </Card>
       </div>
     </section>
   )

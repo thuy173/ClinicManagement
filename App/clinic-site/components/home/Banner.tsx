@@ -11,7 +11,7 @@ const Banner = () => {
     'Special Event Coming Soon'
   ]
   return (
-    <section className='flex-center relative mt-40 min-h-screen w-full flex-col'>
+    <section className='flex-center relative mt-20 lg:mt-40 min-h-screen w-full flex-col'>
       <TextCarousel
         texts={texts}
         speed={50}
