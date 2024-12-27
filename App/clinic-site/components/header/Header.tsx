@@ -143,7 +143,7 @@ const Header: React.FC = () => {
               <div className='grid grid-cols-1'>
                 <div className=''>
                   <Link
-                    href='/login'
+                    href='/auth/login'
                     className='block font-medium text-zinc-700 transition-transform duration-200 hover:scale-105 hover:text-zinc-900'
                   >
                     Đăng nhập
@@ -160,28 +160,37 @@ const Header: React.FC = () => {
   return (
     <>
       <div
-        className={`fixed top-0 z-50 w-full bg-white/30 p-1 backdrop-blur-md transition-transform duration-500 ease-in-out ${
-          hideOnScroll ? '-translate-y-full' : 'translate-y-0'
-        }`}
+        className={`fixed top-0 z-50 w-full bg-white/30 p-1 backdrop-blur-md`}
       >
-        <div className='mx-auto grid grid-cols-2 px-6 lg:grid-cols-5'>
-          <div className='flex items-center justify-start lg:col-span-1 lg:justify-center lg:gap-2'>
-            <Image
-              src={Logo}
-              alt='Medical'
-              width={48}
-              height={48}
-              className='ml-1 md:ml-8 lg:ml-10'
-            />
-            <h2 className='blue_gradient text-xl font-bold'>Medical</h2>
-          </div>
-          <div className='lg:col-span-4'>
+        <div className='mx-auto grid grid-cols-1 px-6 lg:grid-cols-5'>
+          <div
+            className={`transform transition-all duration-500 ease-in-out lg:col-span-5 ${
+              hideOnScroll
+                ? 'h-0 -translate-y-full overflow-hidden'
+                : 'translate-y-0'
+            }`}
+          >
             {headApp()}
             <Divider className='my-5 hidden lg:flex' />
+          </div>
+
+          <div className='flex items-center justify-between gap-4 lg:col-span-5'>
+            <div className='flex items-center'>
+              <Image
+                src={Logo}
+                alt='Medical'
+                width={48}
+                height={48}
+                className='ml-1 lg:ml-0'
+              />
+              <h2 className='blue_gradient ml-2 text-xl font-bold'>Medical</h2>
+            </div>
+
             {navApp()}
           </div>
         </div>
       </div>
+
       <div className='flex lg:hidden'>
         <MobileNav />
       </div>

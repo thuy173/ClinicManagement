@@ -6,6 +6,7 @@ import { Card, CardBody } from '@node_modules/@nextui-org/card/dist'
 import { useLayout } from '@context/LayoutContext'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
+import BackgroundImage from '../../public/assets/images/bgr-banner.webp'
 
 const LoginForm: React.FC = () => {
   const { login, isLoading, error } = useAuth()
@@ -17,51 +18,51 @@ const LoginForm: React.FC = () => {
     return () => setShowHeaderFooter(true)
   }, [setShowHeaderFooter])
 
-  // Form validation schema
   const validationSchema = Yup.object({
     username: Yup.string().required('Username is required'),
     password: Yup.string().required('Password is required'),
   })
 
-  // Submit handler
   const handleSubmit = async (values: { username: string; password: string }) => {
     try {
       await login(values.username, values.password)
-      // router.push('/') // Redirect to homepage after successful login
     } catch {
-      // Errors handled in Zustand store
+      // Handle errors here
     }
   }
 
   return (
-    <section className='relative flex min-h-screen items-center justify-center'>
+    <section className='flex min-h-screen items-center justify-center'>
+      {/* Background */}
       <div
-        className='absolute inset-0 z-0 h-full w-full bg-cover bg-center bg-no-repeat'
-        style={
-          {
-            // backgroundImage: `url(${BackgroundImage})`
-          }
-        }
+        className='absolute inset-0 z-0 h-full w-full bg-cover bg-center bg-no-repeat' 
+        style={{
+          backgroundImage: `url(${BackgroundImage.src})`,
+        }}
       />
-      <div className='absolute inset-0 z-10 bg-black/15' />
 
+      {/* Form */}
       <Formik
         initialValues={{ username: '', password: '' }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
         {({ isSubmitting }) => (
-          <Form>
-            <Card className='w-full border border-white/30 bg-white/10 p-6 shadow-xl backdrop-blur-md'>
+          <Form className='relative z-20 w-full max-w-md'>
+            <Card className='w-full border border-gray-300 bg-black/10 p-6 shadow-lg rounded-lg'>
               <CardBody>
-                <h2 className='min-h-40'>Login</h2>
+                <h2 className='text-2xl font-bold text-gray-800 mb-6 text-center'>Login</h2>
 
-                <div className='form-group'>
+                <div className='mb-4'>
+                  <label htmlFor='username' className='block text-sm font-medium text-gray-700 mb-1'>
+                    Username
+                  </label>
                   <Field
+                    id='username'
                     type='text'
                     name='username'
-                    placeholder='Username'
-                    className='input'
+                    placeholder='Enter your username'
+                    className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none'
                   />
                   <ErrorMessage
                     name='username'
@@ -70,12 +71,16 @@ const LoginForm: React.FC = () => {
                   />
                 </div>
 
-                <div className='form-group'>
+                <div className='mb-4'>
+                  <label htmlFor='password' className='block text-sm font-medium text-gray-700 mb-1'>
+                    Password
+                  </label>
                   <Field
+                    id='password'
                     type='password'
                     name='password'
-                    placeholder='Password'
-                    className='input'
+                    placeholder='Enter your password'
+                    className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none'
                   />
                   <ErrorMessage
                     name='password'
@@ -84,11 +89,15 @@ const LoginForm: React.FC = () => {
                   />
                 </div>
 
-                <button type='submit' disabled={isLoading || isSubmitting}>
+                <button
+                  type='submit'
+                  disabled={isLoading || isSubmitting}
+                  className='w-full bg-sky-500 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-200'
+                >
                   {isLoading || isSubmitting ? 'Logging in...' : 'Login'}
                 </button>
 
-                {error && <p className='error'>{error}</p>}
+                {error && <p className='text-red-500 text-sm mt-4 text-center'>{error}</p>}
               </CardBody>
             </Card>
           </Form>
