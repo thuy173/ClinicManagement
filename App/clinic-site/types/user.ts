@@ -2,7 +2,7 @@ export interface LoginResponse {
   user: {
     id: string
     username: string
-    email: string
+    verifyToken: string
+
   }
-  token: string
 }

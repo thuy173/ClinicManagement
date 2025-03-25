@@ -10,9 +10,10 @@ const ClientLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <>
-      <div className='main'>
+      {/* <div className='main'>
         <div className='gradient' />
-      </div>
+      </div> */}
+
       {showHeaderFooter && <Header />}
       <main className='app'>{children}</main>
       {showHeaderFooter && <Footer className='hidden lg:block' />}

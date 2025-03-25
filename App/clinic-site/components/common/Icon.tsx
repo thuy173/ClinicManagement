@@ -4,6 +4,7 @@ interface IconAppProps {
   name?: string
   src?: string | StaticImageData
   style?: React.CSSProperties
+  styleTitle?: React.CSSProperties
   title?: string
   color?: string
   width?: number
@@ -13,6 +14,7 @@ const IconApp: React.FC<IconAppProps> = ({
   name,
   src,
   style,
+  styleTitle,
   title,
   color,
   width,
@@ -42,7 +44,7 @@ const IconApp: React.FC<IconAppProps> = ({
           }}
         ></i>
       )}
-      {title && <p className={`${color} font-sans text-sm`}>{title}</p>}
+      {title && <p className={`${color} font-sans text-sm`} style={styleTitle}>{title}</p>}
     </div>
   )
 }

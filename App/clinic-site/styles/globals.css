@@ -84,7 +84,8 @@ body {
 /* Tailwind Styles */
 
 .app {
-  @apply relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-center;
+  /* @apply relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-center; */
+  @apply relative mx-auto flex flex-col items-center justify-center;
 }
 
 /* .black_btn {
@@ -122,6 +123,26 @@ body {
 .desc {
   @apply mt-5 max-w-2xl text-lg text-gray-600 sm:text-xl;
 }
+
+/* Scroll bar */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: #a1a1a1;
+}
+
 
 /* .search_input {
   @apply font-satoshi block w-full rounded-md border border-gray-200 bg-white py-2.5 pl-5 pr-12 text-sm font-medium shadow-lg focus:border-black focus:outline-none focus:ring-0;
@@ -186,3 +207,11 @@ body {
 .flex-between {
   @apply flex items-center justify-between;
 } */
+
+.clip-path-diagonal {
+  clip-path: polygon(0 0, 98% 0, 85% 190%, 0% 100%);
+}
+
+.clip-path-reverse {
+  clip-path: polygon(13% 0, 100% 0, 100% 100%, 0 100%);
+}

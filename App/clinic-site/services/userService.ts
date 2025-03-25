@@ -1,7 +1,6 @@
 import { LoginResponse } from '@/types/user';
 import apiClient from './apiClient';
 
-// Hàm gọi API để login
 export const login = async (username: string, password: string): Promise<LoginResponse> => {
   try {
     const response = await apiClient.post<LoginResponse>('/auth/login', { username, password });

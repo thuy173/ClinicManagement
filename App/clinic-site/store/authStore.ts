@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { login } from '../services/userService';
 import { LoginResponse } from '@/types/user';
+import useToastStore from './useMessageStore';
 
-// Định nghĩa kiểu dữ liệu cho trạng thái Auth
 interface AuthState {
   user: LoginResponse['user'] | null;
   token: string | null;
@@ -14,7 +14,6 @@ interface AuthState {
   logout: () => void;
 }
 
-// Tạo Zustand store
 const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -27,20 +26,41 @@ const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const data = await login(username, password);
-          set({ user: data.user, token: data.token, isLoading: false });
+          set({ user: data.user, token: data.user.verifyToken, isLoading: false });
+          
+          useToastStore.getState().addMessage({
+            message: 'Đăng nhập thành công!',
+            type: 'success',
+            position: 'top-right',
+            duration: 3000
+          });
+          
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
           set({ error: error.message, isLoading: false });
+          
+          useToastStore.getState().addMessage({
+            message: error.message || 'Đăng nhập thất bại',
+            type: 'error',
+            position: 'top-right',
+            duration: 5000
+          });
         }
       },
 
       logout: () => {
         set({ user: null, token: null });
+        
+        useToastStore.getState().addMessage({
+          message: 'Đăng xuất thành công',
+          type: 'info',
+          position: 'top-right',
+          duration: 3000
+        });
       },
     }),
     {
-      name: 'auth-storage', // Lưu trạng thái vào localStorage
-    //   getStorage: () => localStorage, // Định nghĩa bộ lưu trữ
+      name: 'auth-storage',
     }
   )
 );

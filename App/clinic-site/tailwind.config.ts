@@ -21,6 +21,9 @@ export default {
           lg: '2rem'
         }
       },
+      fontSize: {
+        'xxs': '0.625rem',
+      },
       animation: {
         'marquee': 'marquee 50s linear infinite',
       },
