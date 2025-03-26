@@ -1,54 +1,80 @@
-import useAuthStore from '@store/authStore';
-import axios from 'axios';
+import useAuthStore from '@store/authStore'
+import axios, {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig
+} from 'axios'
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
-  },
-});
+    'Content-Type': 'application/json'
+  }
+})
 
 apiClient.interceptors.request.use(
-  (config) => {
-    const token = useAuthStore.getState().token;
+  (config: InternalAxiosRequestConfig) => {
+    const token = useAuthStore.getState().token
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers = config.headers || {}
+      config.headers.Authorization = `Bearer ${token}`
     }
-    return config;
+    return config
   },
-  (error) => {
-    return Promise.reject(error);
+  (error: AxiosError) => {
+    return Promise.reject(error)
   }
-);
+)
 
 apiClient.interceptors.response.use(
-  (response) => {
-    // Trả về dữ liệu từ response thành công
-    return response.data;
+  (response: AxiosResponse) => {
+    return response
   },
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean
+    }
 
-    // Nếu lỗi 401 và chưa thử refresh token -> thử refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true
+
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
+        const { refreshToken } = useAuthStore.getState()
+
         if (refreshToken) {
-          const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/refresh`, { refreshToken });
-          localStorage.setItem('accessToken', data.accessToken);
-          apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
-          return apiClient(originalRequest);
+          const { data } = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/refresh`,
+            {
+              refreshToken
+            }
+          )
+
+          // Update the store with new tokens
+          useAuthStore.setState({
+            token: data.accessToken || data.token,
+            refreshToken: data.refreshToken
+          })
+
+          // Retry the original request
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${data.accessToken || data.token}`
+          }
+          return apiClient(originalRequest)
         }
       } catch (err) {
-        console.error('Refresh token failed. Please login again.', err);
-        // Thực hiện logout nếu cần, hoặc điều hướng về login
+        console.error('Refresh token failed', err)
+        useAuthStore.getState().logout()
+        // You might want to redirect to login here
       }
     }
 
-    return Promise.reject(error);
+    return Promise.reject(error)
   }
-);
+)
 
-export default apiClient;
+export default apiClient

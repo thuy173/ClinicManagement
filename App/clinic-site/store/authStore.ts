@@ -1,68 +1,84 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { login } from '../services/userService';
-import { LoginResponse } from '@/types/user';
-import useToastStore from './useMessageStore';
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import { login } from '../services/userService'
+import { LoginReq, LoginRes } from '@/types/user'
+import useToastStore from './useMessageStore'
 
 interface AuthState {
-  user: LoginResponse['user'] | null;
-  token: string | null;
-  isLoading: boolean;
-  error: string | null;
+  user: LoginRes['user'] | null
+  token: string | null
+  refreshToken: string | null
+  isLoading: boolean
+  error: string | null
 
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
+  login: (credentials: LoginReq) => Promise<boolean>
+  logout: () => void
 }
 
 const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    set => ({
       user: null,
       token: null,
+      refreshToken: null,
       isLoading: false,
       error: null,
 
-      login: async (username: string, password: string) => {
-        set({ isLoading: true, error: null });
+      login: async (credentials: LoginReq) => {
+        set({ isLoading: true, error: null })
         try {
-          const data = await login(username, password);
-          set({ user: data.user, token: data.user.verifyToken, isLoading: false });
-          
+          const data = await login(credentials)
+          const token = data.user.verifyToken
+
+          if (typeof window !== 'undefined') {
+            document.cookie = `auth-token=${token}; Secure; SameSite=Strict; path=/; max-age=${60 * 60 * 24 * 7}` // 1 week
+          }
+
+          set({
+            user: data.user,
+            token,
+            refreshToken: data.refreshToken || null,
+            isLoading: false
+          })
+
           useToastStore.getState().addMessage({
             message: 'Đăng nhập thành công!',
             type: 'success',
-            position: 'top-right',
             duration: 3000
-          });
-          
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-          set({ error: error.message, isLoading: false });
-          
+          })
+          return true;
+
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Đăng nhập thất bại';
+          set({ error: errorMessage, isLoading: false });
+
           useToastStore.getState().addMessage({
-            message: error.message || 'Đăng nhập thất bại',
+            message: errorMessage,
             type: 'error',
-            position: 'top-right',
             duration: 5000
-          });
+          })
+          return false;
         }
       },
 
       logout: () => {
-        set({ user: null, token: null });
-        
+        if (typeof window !== 'undefined') {
+          document.cookie = 'auth-token=; Max-Age=0; path=/'
+        }
+
+        set({ user: null, token: null, refreshToken: null }); 
+
         useToastStore.getState().addMessage({
           message: 'Đăng xuất thành công',
           type: 'info',
-          position: 'top-right',
           duration: 3000
-        });
+        })
       },
     }),
     {
       name: 'auth-storage',
     }
   )
-);
+)
 
-export default useAuthStore;
+export default useAuthStore

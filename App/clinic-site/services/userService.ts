@@ -1,9 +1,9 @@
-import { LoginResponse } from '@/types/user';
+import { LoginReq, LoginRes } from '@/types/user';
 import apiClient from './apiClient';
 
-export const login = async (username: string, password: string): Promise<LoginResponse> => {
+export const login = async (credentials: LoginReq): Promise<LoginRes> => {
   try {
-    const response = await apiClient.post<LoginResponse>('/auth/login', { username, password });
+    const response = await apiClient.post<LoginRes>('/auth/login', credentials);
     return response.data;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

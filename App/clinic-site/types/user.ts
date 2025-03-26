@@ -1,8 +1,17 @@
-export interface LoginResponse {
+export interface LoginReq {
+  username: string
+  password: string
+}
+export interface LoginRes {
+  message?: string
   user: {
-    id: string
+    _id: string
     username: string
-    verifyToken: string
-
+    role_id: string
+    verifyToken?: string
+    createdAt: string
+    updatedAt: string
   }
+  token?: string
+  refreshToken?: string
 }

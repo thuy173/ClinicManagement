@@ -25,8 +25,7 @@ const useToastStore = create<ToastState>((set) => ({
       messages: [...state.messages, { ...message, id }]
     }));
     
-    // Tự động xóa message sau khoảng thời duration (mặc định 5000ms)
-    const duration = message.duration || 5000;
+    const duration = message.duration || 3000;
     setTimeout(() => {
       useToastStore.getState().removeMessage(id);
     }, duration);

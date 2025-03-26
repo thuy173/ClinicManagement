@@ -7,10 +7,13 @@ import { useLayout } from '@context/LayoutContext'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import BackgroundImage from '../../public/assets/images/bgr-banner.webp'
+import { LoginReq } from '@/types/user'
+import { useRouter } from 'next/navigation'
 
 const LoginForm: React.FC = () => {
-  const { login, isLoading, error } = useAuth()
+  const { login, isLoading } = useAuth()
   const { setShowHeaderFooter } = useLayout()
+  const router = useRouter()
 
   // Hide Header/Footer on mount and show on unmount
   useEffect(() => {
@@ -23,9 +26,17 @@ const LoginForm: React.FC = () => {
     password: Yup.string().required('Password is required'),
   })
 
-  const handleSubmit = async (values: { username: string; password: string }) => {
+  const initialValues: LoginReq = {
+    username: '',
+    password: ''
+  }
+
+  const handleSubmit = async (values: LoginReq) => {
     try {
-      await login(values.username, values.password)
+      const success = await login(values)
+      if (success) {
+        router.push('/')
+      }
     } catch {
       // Handle errors here
     }
@@ -43,7 +54,7 @@ const LoginForm: React.FC = () => {
 
       {/* Form */}
       <Formik
-        initialValues={{ username: '', password: '' }}
+        initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
@@ -97,7 +108,6 @@ const LoginForm: React.FC = () => {
                   {isLoading || isSubmitting ? 'Logging in...' : 'Login'}
                 </button>
 
-                {error && <p className='text-red-500 text-sm mt-4 text-center'>{error}</p>}
               </CardBody>
             </Card>
           </Form>
