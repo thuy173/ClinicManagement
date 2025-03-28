@@ -8,7 +8,7 @@ import { chatRoute } from "./chat.routes";
 
 const Router = express.Router();
 
-Router.use("/admin", auth.verifyToken, auth.checkRole(["Admin", "Doctor"]), adminRoute);
+Router.use("/admin", auth.verifyToken, auth.checkRole(["Admin", "Doctor", "Patient"]), adminRoute);
 
 Router.use("/site", auth.verifyToken, auth.checkRole(["Patient", "Doctor", "Admin"]), siteRoute);
 

@@ -10,74 +10,28 @@ const CHAT_MESSAGE_COLLECTION_SCHEMA = Joi.object({
   sender: Joi.string().required(),
   content: Joi.string().required(),
   room: Joi.string().required(),
+  target: Joi.string().allow(null).optional(),
   timestamp: Joi.date().default(Date.now),
 });
 
 // Fields that cannot be updated
 const INVALID_UPDATE_FIELDS = ["_id", "timestamp"];
 
-// Socket service class
-class SocketService {
-  constructor(io) {
-    this.io = io;
-    this.connectedUsers = new Map();
-  }
-
-  initialize() {
-    this.io.on("connection", (socket) => {
-      // eslint-disable-next-line no-undef
-      console.log("New client connected:", socket.id);
-
-      socket.on("join_room", (data) => {
-        const { userId, room } = data;
-        socket.join(room);
-        this.connectedUsers.set(socket.id, { userId, room });
-
-        this.io.to(room).emit("user_joined", {
-          userId,
-          message: `User ${userId} joined ${room}`,
-        });
-      });
-
-      socket.on("send_message", async (data) => {
-        const { content, room } = data;
-        const user = this.connectedUsers.get(socket.id);
-
-        if (user) {
-          const messageData = {
-            sender: user.userId,
-            content,
-            room,
-            timestamp: new Date(),
-          };
-
-          // Save message to database
-          await ChatModel.createMessage(messageData);
-
-          // Emit to all users in the room
-          this.io.to(room).emit("new_message", messageData);
-        }
-      });
-
-      socket.on("disconnect", () => {
-        const user = this.connectedUsers.get(socket.id);
-        if (user) {
-          this.io.to(user.room).emit("user_left", {
-            userId: user.userId,
-            message: `User ${user.userId} left ${user.room}`,
-          });
-          this.connectedUsers.delete(socket.id);
-        }
-      });
-    });
-  }
-}
-
 // Validation function
 const validateBeforeCreate = async (data) => {
   return await CHAT_MESSAGE_COLLECTION_SCHEMA.validateAsync(data, {
     abortEarly: false,
   });
+};
+
+// để lọc tin nhắn giữa 2 user
+const getPrivateMessages = async (userId1, userId2) => {
+  const roomId = [userId1, userId2].sort().join('_');
+  return await GET_DB()
+    .collection(CHAT_MESSAGE_COLLECTION_NAME)
+    .find({ room: roomId })
+    .sort({ timestamp: 1 })
+    .toArray();
 };
 
 // Create a new message
@@ -180,9 +134,9 @@ const getRecentMessages = async (room, page = 1, limit = 50) => {
 };
 
 export const ChatModel = {
-  SocketService,
   createMessage,
   getMessagesByRoom,
+  getPrivateMessages,
   findOneById,
   updateById,
   deleteById,
