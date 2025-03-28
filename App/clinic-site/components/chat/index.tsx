@@ -1,25 +1,27 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
-import { Send } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
 import { useLayout } from '@context/LayoutContext'
 import { useChatSocket } from '@hooks/useSocket'
 import { useAuth } from '@hooks/useAuth'
 import { usePatientStore } from '@store/usePatientStore'
 import { useChatStore } from '@store/useChatStore'
+import ChatSidebar from './ChatSidebar'
+import ChatHeader from './ChatHeader'
+import ChatMessages from './ChatMessages'
+import MessageInput from './MessageInput'
 
 const ChatApp = () => {
   const { user } = useAuth()
   const [message, setMessage] = useState('')
   const [room, setRoom] = useState('general')
-  const [targetUserId, setTargeUserId] = useState<string | undefined>(undefined)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [targetUserId, setTargetUserId] = useState<string | undefined>(undefined)
   const { setShowHeaderFooter } = useLayout()
   const { patients, fetchPatients } = usePatientStore()
   const { chats, fetchChats } = useChatStore()
 
   const { messages, onlineUsers, connectionError, sendMessage, changeRoom, currentRoomId } =
-  useChatSocket({ userId: user?._id, room, targetUserId })
+    useChatSocket({ userId: user?._id, room, targetUserId })
 
   useEffect(() => {
     fetchPatients()
@@ -29,7 +31,6 @@ const ChatApp = () => {
     fetchChats(currentRoomId)
   }, [currentRoomId, fetchChats])
 
-  // Hide Header/Footer on mount
   useEffect(() => {
     setShowHeaderFooter(false)
     return () => setShowHeaderFooter(true)
@@ -45,39 +46,15 @@ const ChatApp = () => {
 
   const handleRoomChange = (newRoom: string) => {
     setRoom(newRoom)
-    setTargeUserId(undefined)
+    setTargetUserId(undefined)
     changeRoom(newRoom)
   }
 
   const handleUserClick = (userId: string) => {
-    setTargeUserId(userId)
+    setTargetUserId(userId)
     setRoom('private')
     changeRoom('private', userId)
   }
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  const realTimeMessages = messages.filter(msg => 
-    !chats.some(chat => chat._id === msg._id)
-  );
-  
-  const allMessages = [...chats, ...realTimeMessages];
-
-   const filteredMessages = allMessages.filter(msg => {
-    if (targetUserId) {
-      return (
-        (msg.sender === user?._id && msg.target === targetUserId) ||
-        (msg.sender === targetUserId && msg.target === user?._id)
-      )
-    }
-    return msg.room === currentRoomId 
-  })
-
-  const sortedMessages = filteredMessages.sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  );
 
   return (
     <section className='flex min-h-screen w-screen items-center justify-center'>
@@ -88,125 +65,37 @@ const ChatApp = () => {
       )}
 
       <div className='flex h-screen w-full bg-gray-100'>
-        {/* Sidebar */}
-        <div className='w-64 bg-white p-4'>
-          <h2 className='mb-4 text-xl font-bold'>Chat Rooms</h2>
-          <div className='space-y-2'>
-            <button
-              onClick={() => handleRoomChange('general')}
-              className={`w-full rounded p-2 text-left ${
-                room === 'general'
-                  ? 'bg-blue-100 text-blue-600'
-                  : 'hover:bg-gray-100'
-              }`}
-            >
-              Common
-            </button>
-          </div>
+        <ChatSidebar
+          room={room}
+          targetUserId={targetUserId}
+          user={user}
+          patients={patients}
+          onlineUsers={onlineUsers}
+          onRoomChange={handleRoomChange}
+          onUserClick={handleUserClick}
+        />
 
-          {/* Online Users */}
-          <div className='mt-8'>
-            <h3 className='mb-2 font-semibold'>
-              All Users ({patients.filter(p => p.user_id !== user?._id).length})
-            </h3>
-            <div className='space-y-1'>
-              {patients
-                .filter(p => p.user_id !== user?._id)
-                .map(user => (
-                  <div
-                    key={user.user_id}
-                    className={`flex cursor-pointer items-center space-x-2 rounded p-2 ${
-                      targetUserId === user.user_id
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'hover: bg-gray-100'
-                    }`}
-                    onClick={() => handleUserClick(user.user_id)}
-                  >
-                    <div className='flex items-center justify-center text-sm'>
-                      {user.name}
-                      {onlineUsers.some(
-                        online => online.id === user.user_id
-                      ) && (
-                        <div className='ml-2 h-2 w-2 rounded-full bg-green-500'></div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Chat Area */}
         <div className='flex flex-1 flex-col'>
-          <div className='bg-white p-4 shadow-sm'>
-            <h1 className='text-xl font-semibold'>
-              {targetUserId
-                ? `Private chat with ${
-                    patients.find(p => p.user_id === targetUserId)?.name
-                  }`
-                : `#${room}`}
-            </h1>
-          </div>
+          <ChatHeader
+            room={room}
+            targetUserId={targetUserId}
+            patients={patients}
+          />
 
-          {/* Messages */}
-          <div className='flex-1 space-y-4 overflow-y-auto p-4'>
-            {sortedMessages.map((msg, index) => (
-              <div
-                key={index}
-                className={`flex ${
-                  msg.sender === user?._id ? 'justify-end' : 'justify-start'
-                }`}
-              >
-                <div
-                  className={`max-w-[70%] rounded-lg p-3 ${
-                    msg.sender === user?._id
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-200 text-gray-800'
-                  }`}
-                >
-                  <div className='mb-1 text-sm font-semibold'>
-                    {msg.sender === user?._id
-                      ? 'You'
-                      : patients.find(p => p.user_id === msg.sender)?.name ||
-                        msg.sender}
-                  </div>
-                  <div
-                    className='overflow-hidden text-ellipsis'
-                    style={{
-                      overflowWrap: 'break-word',
-                      wordBreak: 'break-word',
-                      whiteSpace: 'pre-line'
-                    }}
-                  >
-                    {msg.content}
-                  </div>
-                  <div className='mt-1 text-xs opacity-75'>
-                    {new Date(msg.timestamp).toLocaleTimeString()}
-                  </div>
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
+          <ChatMessages
+            messages={messages}
+            chats={chats}
+            currentRoomId={currentRoomId}
+            targetUserId={targetUserId}
+            user={user}
+            patients={patients}
+          />
 
-          {/* Message Input */}
-          <form onSubmit={handleSendMessage} className='bg-white p-4 shadow-lg'>
-            <div className='flex space-x-2'>
-              <input
-                type='text'
-                value={message}
-                onChange={e => setMessage(e.target.value)}
-                placeholder='Type your message...'
-                className='flex-1 rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
-              />
-              <button
-                type='submit'
-                className='rounded-lg bg-blue-500 p-2 text-white transition-colors hover:bg-blue-600'
-              >
-                <Send size={20} />
-              </button>
-            </div>
-          </form>
+          <MessageInput
+            message={message}
+            onMessageChange={setMessage}
+            onSendMessage={handleSendMessage}
+          />
         </div>
       </div>
     </section>
