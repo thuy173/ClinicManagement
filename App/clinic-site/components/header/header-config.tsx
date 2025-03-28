@@ -13,6 +13,11 @@ const headerConfig: HeaderConfigItem[] = [
     icon: 'lni lni-home-2'
   },
   {
+    title: 'Chat',
+    path: '/chat',
+    icon: 'lni lni-user-4'
+  },
+  {
     title: 'Cá nhân',
     path: '/profile/setting',
     icon: 'lni lni-user-4'

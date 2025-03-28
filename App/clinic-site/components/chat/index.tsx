@@ -4,67 +4,36 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Send } from 'lucide-react'
 import { useLayout } from '@context/LayoutContext'
 import { useChatSocket } from '@hooks/useSocket'
+import { useAuth } from '@hooks/useAuth'
+import { usePatientStore } from '@store/usePatientStore'
+import { useChatStore } from '@store/useChatStore'
 
-const generateUserId = () => {
-  const timestamp = Date.now().toString(36)
-  const randomStr = Math.random().toString(36).substr(2, 5)
-  return `user_${timestamp}_${randomStr}`
-}
 const ChatApp = () => {
+  const { user } = useAuth()
   const [message, setMessage] = useState('')
   const [room, setRoom] = useState('general')
-  const [userId] = useState(generateUserId)
+  const [targetUserId, setTargeUserId] = useState<string | undefined>(undefined)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { setShowHeaderFooter } = useLayout()
+  const { patients, fetchPatients } = usePatientStore()
+  const { chats, fetchChats } = useChatStore()
 
-  // Fetch messages history when entering a room
-  // const fetchMessages = async (roomName: string) => {
-  //   // try {
-  //   //   setLoading(true)
-  //   const response = await fetch(`${API_URL}/messages/${roomName}`)
-  //   //   const contentType = response.headers.get('content-type')
-  //   //   if (contentType && contentType.includes('application/json')) {
-  //   const data = await response.json()
-  //   if (data.success) {
-  //     setMessages(data.messages)
-  //   }
-  //   //   } else {
-  //   //     throw new Error('Received non-JSON response')
-  //   //   }
-  //   // } catch (error) {
-  //   //   console.error('Error fetching messages:', error)
-  //   // } finally {
-  //   //   setLoading(false)
-  //   // }
-  // }
+  const { messages, onlineUsers, connectionError, sendMessage, changeRoom, currentRoomId } =
+  useChatSocket({ userId: user?._id, room, targetUserId })
 
-  // Save message to database
-  // const saveMessage = async (messageData: Message) => {
-  //   try {
-  //     const response = await fetch(`${API_URL}/messages`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify(messageData)
-  //     })
-  //     const data = await response.json()
-  //     if (!data.success) {
-  //       console.error('Failed to save message')
-  //     }
-  //   } catch (error) {
-  //     console.error('Error saving message:', error)
-  //   }
-  // }
+  useEffect(() => {
+    fetchPatients()
+  }, [fetchPatients])
+
+  useEffect(() => {
+    fetchChats(currentRoomId)
+  }, [currentRoomId, fetchChats])
 
   // Hide Header/Footer on mount
   useEffect(() => {
     setShowHeaderFooter(false)
     return () => setShowHeaderFooter(true)
   }, [setShowHeaderFooter])
-
-  const { messages, onlineUsers, connectionError, sendMessage, changeRoom } =
-    useChatSocket({ userId, room })
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
@@ -76,12 +45,39 @@ const ChatApp = () => {
 
   const handleRoomChange = (newRoom: string) => {
     setRoom(newRoom)
+    setTargeUserId(undefined)
     changeRoom(newRoom)
+  }
+
+  const handleUserClick = (userId: string) => {
+    setTargeUserId(userId)
+    setRoom('private')
+    changeRoom('private', userId)
   }
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  const realTimeMessages = messages.filter(msg => 
+    !chats.some(chat => chat._id === msg._id)
+  );
+  
+  const allMessages = [...chats, ...realTimeMessages];
+
+   const filteredMessages = allMessages.filter(msg => {
+    if (targetUserId) {
+      return (
+        (msg.sender === user?._id && msg.target === targetUserId) ||
+        (msg.sender === targetUserId && msg.target === user?._id)
+      )
+    }
+    return msg.room === currentRoomId 
+  })
+
+  const sortedMessages = filteredMessages.sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  );
 
   return (
     <section className='flex min-h-screen w-screen items-center justify-center'>
@@ -104,32 +100,36 @@ const ChatApp = () => {
                   : 'hover:bg-gray-100'
               }`}
             >
-              General
-            </button>
-            <button
-              onClick={() => handleRoomChange('random')}
-              className={`w-full rounded p-2 text-left ${
-                room === 'random'
-                  ? 'bg-blue-100 text-blue-600'
-                  : 'hover:bg-gray-100'
-              }`}
-            >
-              Random
+              Common
             </button>
           </div>
 
           {/* Online Users */}
           <div className='mt-8'>
-            <h3 className='mb-2 font-semibold'>Online Users</h3>
+            <h3 className='mb-2 font-semibold'>
+              All Users ({patients.filter(p => p.user_id !== user?._id).length})
+            </h3>
             <div className='space-y-1'>
-              {onlineUsers
-                .sort((a, b) => b.joinedAt - a.joinedAt)
+              {patients
+                .filter(p => p.user_id !== user?._id)
                 .map(user => (
-                  <div key={user.id} className='flex items-center space-x-2'>
-                    <div className='h-2 w-2 rounded-full bg-green-500'></div>
-                    <span className='text-sm'>
-                      {user.id === userId ? `${user.id} (You)` : user.id}
-                    </span>
+                  <div
+                    key={user.user_id}
+                    className={`flex cursor-pointer items-center space-x-2 rounded p-2 ${
+                      targetUserId === user.user_id
+                        ? 'bg-blue-100 text-blue-600'
+                        : 'hover: bg-gray-100'
+                    }`}
+                    onClick={() => handleUserClick(user.user_id)}
+                  >
+                    <div className='flex items-center justify-center text-sm'>
+                      {user.name}
+                      {onlineUsers.some(
+                        online => online.id === user.user_id
+                      ) && (
+                        <div className='ml-2 h-2 w-2 rounded-full bg-green-500'></div>
+                      )}
+                    </div>
                   </div>
                 ))}
             </div>
@@ -139,26 +139,37 @@ const ChatApp = () => {
         {/* Chat Area */}
         <div className='flex flex-1 flex-col'>
           <div className='bg-white p-4 shadow-sm'>
-            <h1 className='text-xl font-semibold'>#{room}</h1>
+            <h1 className='text-xl font-semibold'>
+              {targetUserId
+                ? `Private chat with ${
+                    patients.find(p => p.user_id === targetUserId)?.name
+                  }`
+                : `#${room}`}
+            </h1>
           </div>
 
           {/* Messages */}
           <div className='flex-1 space-y-4 overflow-y-auto p-4'>
-            {messages.map((msg, index) => (
+            {sortedMessages.map((msg, index) => (
               <div
                 key={index}
                 className={`flex ${
-                  msg.sender === userId ? 'justify-end' : 'justify-start'
+                  msg.sender === user?._id ? 'justify-end' : 'justify-start'
                 }`}
               >
                 <div
                   className={`max-w-[70%] rounded-lg p-3 ${
-                    msg.sender === userId
+                    msg.sender === user?._id
                       ? 'bg-blue-500 text-white'
                       : 'bg-gray-200 text-gray-800'
                   }`}
                 >
-                  <div className='mb-1 text-sm font-semibold'>{msg.sender}</div>
+                  <div className='mb-1 text-sm font-semibold'>
+                    {msg.sender === user?._id
+                      ? 'You'
+                      : patients.find(p => p.user_id === msg.sender)?.name ||
+                        msg.sender}
+                  </div>
                   <div
                     className='overflow-hidden text-ellipsis'
                     style={{

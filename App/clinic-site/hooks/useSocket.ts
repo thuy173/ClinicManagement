@@ -5,8 +5,9 @@ import { io, Socket } from 'socket.io-client'
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5052'
 
 interface UseChatSocketProps {
-  userId: string
+  userId?: string
   room: string
+  targetUserId?: string
 }
 
 interface UseChatSocketReturn {
@@ -15,18 +16,22 @@ interface UseChatSocketReturn {
   onlineUsers: OnlineUser[]
   connectionError: string | null
   sendMessage: (content: string) => void
-  changeRoom: (newRoom: string) => void
+  changeRoom: (newRoom: string, newTargetUserId?: string) => void
+  currentRoomId: string
 }
 
 export const useChatSocket = ({
   userId,
-  room
+  room,
+  targetUserId
 }: UseChatSocketProps): UseChatSocketReturn => {
   const [socket, setSocket] = useState<Socket | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([])
   const [connectionError, setConnectionError] = useState<string | null>(null)
 
+  const [currentRoomId, setCurrentRoomId] = useState<string>(room);
+  
   // Khởi tạo kết nối socket
   useEffect(() => {
     const socketInstance = io(SOCKET_URL, {
@@ -75,10 +80,17 @@ export const useChatSocket = ({
   useEffect(() => {
     if (!socket) return
 
-    socket.emit('join_room', { userId, room })
+    const roomId = targetUserId
+      ? [userId, targetUserId].sort().join('_')
+      : room
+
+      console.log('Joining room:', roomId)
+
+    socket.emit('join_room', { userId, room: roomId })
 
     socket.on('new_message', (newMessage: Message) => {
       setMessages(prev => [...prev, newMessage])
+      console.log('New message:', newMessage)
     })
 
     socket.on('user_joined', (data: { userId: string }) => {
@@ -98,27 +110,44 @@ export const useChatSocket = ({
       socket.off('new_message')
       socket.off('user_joined')
       socket.off('user_left')
+      socket.emit('leave_room', room)
     }
-  }, [room, socket, userId])
+  }, [room, socket, userId, targetUserId])
 
   const sendMessage = (content: string) => {
     if (!socket || !content.trim()) return
 
+    const roomId = targetUserId
+      ? [userId, targetUserId].sort().join('_')
+      : room
+
     const newMessage = {
       content,
-      room,
+      room: roomId,
       sender: userId,
+      target: targetUserId,
       timestamp: new Date()
     }
 
     socket.emit('send_message', newMessage)
   }
 
-  const changeRoom = (newRoom: string) => {
+  const changeRoom = (newRoom: string, newTargetUserId?: string) => {
     if (!socket) return
 
-    socket.emit('leave_room', room)
-    socket.emit('join_room', { userId, newRoom })
+    const currentRoomId = targetUserId
+    ? [userId, targetUserId].sort().join('_')
+    : room
+
+    socket.emit('leave_room', currentRoomId)
+
+    const newRoomId = newTargetUserId
+    ? [userId, newTargetUserId].sort().join('_')
+    : newRoom
+
+    socket.emit('join_room', { userId, room: newRoomId })
+    setCurrentRoomId(newRoomId);
+    setMessages([])
   }
 
   return {
@@ -127,6 +156,7 @@ export const useChatSocket = ({
     onlineUsers,
     connectionError,
     sendMessage,
-    changeRoom
+    changeRoom,
+    currentRoomId, 
   }
 }

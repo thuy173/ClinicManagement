@@ -6,14 +6,14 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Nếu đã đăng nhập (có token) mà cố truy cập /login => redirect về trang chính
-  if (authToken && pathname.startsWith('/login')) {
+  if (authToken && pathname.startsWith('/auth/login')) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
   // Nếu không có token và cố truy cập trang cần auth => redirect về /login
-  if (!authToken && !pathname.startsWith('/login')) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
+  // if (!authToken && !pathname.startsWith('/auth/login')) {
+  //   return NextResponse.redirect(new URL('/auth/login', request.url))
+  // }
 
   return NextResponse.next()
 }
