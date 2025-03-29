@@ -13,10 +13,11 @@ import { Divider } from '@node_modules/@nextui-org/divider/dist'
 import ButtonApp from '@components/common/Button'
 import InputApp from '@components/common/Input'
 import IconApp from '@components/common/Icon'
+import { useAuth } from '@hooks/useAuth'
 
 const Header: React.FC = () => {
+  const { user, logout } = useAuth()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [isAuthenticated] = useState(false)
   const [hideOnScroll, setHideOnScroll] = useState(false)
 
   useEffect(() => {
@@ -41,8 +42,6 @@ const Header: React.FC = () => {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen)
   }
-
-  const handleLogout = () => {}
 
   const linkInfo = [
     { class: 'lni lni-app-store', title: 'Store' },
@@ -121,7 +120,7 @@ const Header: React.FC = () => {
             />
           </div>
           <div className='hidden items-center lg:flex'>
-            {isAuthenticated ? (
+            {user ? (
               <div>
                 <Avatar
                   className='cursor-pointer border-transparent'
@@ -132,7 +131,7 @@ const Header: React.FC = () => {
                   <div className='absolute right-0 z-50 mt-2 w-48 rounded-md bg-white py-2 shadow-lg'>
                     <button
                       className='block w-full px-4 py-2 text-left text-sm text-zinc-700 hover:bg-gray-100'
-                      onClick={handleLogout}
+                      onClick={logout}
                     >
                       Đăng xuất
                     </button>
