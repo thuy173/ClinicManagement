@@ -11,7 +11,7 @@ import { LoginReq } from '@/types/user'
 import { useRouter } from 'next/navigation'
 
 const LoginForm: React.FC = () => {
-  const { login, isLoading } = useAuth()
+  const { login, isLoading, error } = useAuth()
   const { setShowHeaderFooter } = useLayout()
   const router = useRouter()
 
@@ -107,7 +107,7 @@ const LoginForm: React.FC = () => {
                 >
                   {isLoading || isSubmitting ? 'Logging in...' : 'Login'}
                 </button>
-
+                {error && <p className='error'>{error}</p>}
               </CardBody>
             </Card>
           </Form>

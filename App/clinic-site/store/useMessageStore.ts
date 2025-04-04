@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { v4 as uuidv4 } from 'uuid';
 
 type ToastMessage = {
   id: string;
@@ -14,12 +15,17 @@ type ToastState = {
   removeMessage: (id: string) => void;
   clearAllMessages: () => void;
 };
-
+const generateId = () => {
+  if (typeof window !== 'undefined' && window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+  return uuidv4();
+};
 const useToastStore = create<ToastState>((set) => ({
   messages: [],
   
   addMessage: (message) => {
-    const id = Math.random().toString(36).substring(2, 9);
+    const id = generateId();
     
     set((state) => ({
       messages: [...state.messages, { ...message, id }]

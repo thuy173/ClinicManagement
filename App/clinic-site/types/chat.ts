@@ -15,8 +15,20 @@ export interface OnlineUser {
 export interface SystemUser {
   user_id: string
   name: string
-  phone: string
-  email: string
+  phone?: string
+  email?: string
   avatar?: string
-  // các thông tin khác
+}
+
+export interface CallData {
+  roomId: string;
+  callerId: string;
+  calleeId: string;
+  signalData?: any;
+}
+
+export interface IncomingCall {
+  roomId: string;
+  callerId: string;
+  callerName: string;
 }

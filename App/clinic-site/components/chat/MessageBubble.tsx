@@ -16,8 +16,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, user, patients }) =>
       <div
         className={`max-w-[70%] rounded-lg p-3 ${
           msg.sender === user?._id
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-800'
+            ? 'bg-blue-400 text-white'
+            : 'bg-gray-100 text-gray-800'
         }`}
       >
         <div className='mb-1 text-sm font-semibold'>
