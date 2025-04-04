@@ -1,6 +1,7 @@
 import Message, { SystemUser } from '@/types/chat'
 import { LoginRes } from '@/types/user'
 import React from 'react'
+import twemoji from 'twemoji'
 
 interface MessageBubbleProps {
   msg: Message
@@ -9,10 +10,17 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, user, patients }) => {
+  const parseEmojis = React.useCallback((text: string) => {
+    return twemoji.parse(text, {
+      className: 'twemoji',
+      base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/',
+      size: 'svg',
+      ext: '.svg'
+    })
+  }, [])
+
   return (
-    <div className={`flex ${
-      msg.sender === user?._id ? 'justify-end' : 'justify-start'
-    }`}>
+    <div className={`flex ${msg.sender === user?._id ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`max-w-[70%] rounded-lg p-3 ${
           msg.sender === user?._id
@@ -27,15 +35,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, user, patients }) =>
               msg.sender}
         </div>
         <div
-          className='overflow-hidden text-ellipsis'
+          className='overflow-hidden text-ellipsis emoji-message'
           style={{
             overflowWrap: 'break-word',
             wordBreak: 'break-word',
             whiteSpace: 'pre-line'
           }}
-        >
-          {msg.content}
-        </div>
+          dangerouslySetInnerHTML={{ __html: parseEmojis(msg.content) }}
+        />
         <div className='mt-1 text-xs opacity-75'>
           {new Date(msg.timestamp).toLocaleTimeString()}
         </div>

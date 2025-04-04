@@ -215,3 +215,16 @@ body {
 .clip-path-reverse {
   clip-path: polygon(13% 0, 100% 0, 100% 100%, 0 100%);
 }
+
+/* In your global CSS file */
+.twemoji {
+  height: 1.2em;
+  width: 1.2em;
+  margin: 0 0.05em 0 0.1em;
+  vertical-align: -0.2em;
+  display: inline-block;
+}
+
+.emoji-message img {
+  display: inline !important;
+}

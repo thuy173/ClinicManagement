@@ -25,7 +25,6 @@ const EmojiPickerButton: React.FC<EmojiPickerButtonProps> = ({ onEmojiClick }) =
 
   const handleEmojiClick = (emojiData: EmojiClickData) => {
     onEmojiClick(emojiData.emoji)
-    setShowPicker(false)
   }
 
   return (
