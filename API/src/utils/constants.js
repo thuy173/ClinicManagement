@@ -1,4 +1,8 @@
-export const WHITELIST_DOMAINS = [];
+export const WHITELIST_DOMAINS = [
+  'http://localhost:3000',
+  'http://192.168.55.101:3000/',
+  'http://172.20.0.1:3000/'
+];
 
 export const DEFAULT_PASSWORD = "Test@123";
 

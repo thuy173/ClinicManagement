@@ -8,8 +8,6 @@ class SocketService {
 
   initialize() {
     this.io.on("connection", (socket) => {
-      console.log("New client connected:", socket.id);
-
       // Xử lý event user join room
       socket.on("join_room", (data) => {
         const { userId, room, targetUserId } = data;
@@ -43,6 +41,22 @@ class SocketService {
           await ChatModel.createMessage(messageData);
           this.io.to(room).emit("new_message", messageData);
         }
+      });
+
+      // Thêm các event call video
+      socket.on("start-call", ({ roomId, callerId, calleeId }) => {
+        // Gửi yêu cầu call tới người nhận
+        socket.to(calleeId).emit("incoming-call", { roomId, callerId });
+      });
+
+      socket.on("accept-call", ({ roomId }) => {
+        socket.join(roomId);
+        // Thông báo cho caller rằng call đã được chấp nhận
+        io.to(roomId).emit("call-accepted");
+      });
+
+      socket.on("reject-call", ({ callerId }) => {
+        socket.to(callerId).emit("call-rejected");
       });
 
       // Xử lý disconnect

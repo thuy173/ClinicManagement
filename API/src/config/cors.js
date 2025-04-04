@@ -6,6 +6,11 @@ import ApiError from "~/utils/error";
 // Cấu hình CORS Option trong dự án thực tế
 export const corsOptions = {
   origin: function (origin, callback) {
+    // Cho phép tất cả các request không có origin (mobile, app, Postman, v.v.)
+    if (!origin && env.BUILD_MODE === 'dev') {
+      return callback(null, true);
+    }
+    
     // Nếu môi trường là local dev thì cho qua luôn
     if (env.BUILD_MODE === "dev") {
       return callback(null, true);
@@ -18,6 +23,8 @@ export const corsOptions = {
     if (WHITELIST_DOMAINS.includes(origin)) {
       return callback(null, true);
     }
+
+    callback(null, true);
 
     // Cuối cùng nếu domain không được chấp nhận thì trả về lỗi
     return callback(
