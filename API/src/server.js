@@ -63,9 +63,9 @@ const START_SERVER = () => {
       );
     });
   } else {
-    httpServer.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+    httpServer.listen(env.LOCAL_DEV_APP_PORT, '0.0.0.0', () => {
       console.log(
-        `3. Local Dev: Server is running successfully at host: ${env.LOCAL_DEV_APP_HOST} and Port: ${env.LOCAL_DEV_APP_PORT}`
+        `3. Local Dev: Server is running successfully at host: 0.0.0.0 and Port: ${env.LOCAL_DEV_APP_PORT}`
       );
     });
   }
